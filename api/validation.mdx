@@ -135,41 +135,7 @@ async function validateRequest(userApiKey, endpoint, method) {
 }
 ```
 
-### Python (Requests)
 
-```python
-import requests
-import os
-
-def validate_request(user_api_key, endpoint, method):
-    headers = {
-        'Authorization': f'Bearer {os.getenv("LIMITLY_API_KEY")}',
-        'Content-Type': 'application/json'
-    }
-    
-    data = {
-        'api_key': user_api_key,
-        'endpoint': endpoint,
-        'method': method
-    }
-    
-    response = requests.post(
-        'https://api.limitly.com/v1/validate',
-        headers=headers,
-        json=data
-    )
-    
-    result = response.json()
-    
-    if result['success']:
-        print('Request allowed')
-        print('Current usage:', result['details']['current_usage'])
-        print('Limit:', result['details']['limit'])
-    else:
-        print('Request denied:', result['error'])
-    
-    return result
-```
 
 ### Express.js Middleware
 

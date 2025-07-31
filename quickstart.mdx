@@ -9,27 +9,17 @@ Get started with Limitly in just a few minutes. This guide will walk you through
 
 ## Prerequisites
 
-- Node.js 16+ or Python 3.8+
+- Node.js 16+
 - A Limitly account (sign up at [app.limitly.com](https://app.limitly.com))
 - Your Limitly API key
 
 ## Step 1: Install the SDK
 
-### Node.js
-
 ```bash
 npm install @limitly/limitly-js
 ```
 
-### Python
-
-```bash
-pip install limitly-python
-```
-
 ## Step 2: Initialize the SDK
-
-### Node.js
 
 ```typescript
 import { Limitly } from '@limitly/limitly-js';
@@ -39,21 +29,9 @@ const limitly = new Limitly({
 });
 ```
 
-### Python
-
-```python
-from limitly import Limitly
-
-limitly = Limitly(
-    api_key="lk_1234567890abcdef1234567890abcdef"
-)
-```
-
 ## Step 3: Create a Plan
 
 First, create a usage plan for your users:
-
-### Node.js
 
 ```typescript
 const plan = await limitly.plans.create({
@@ -67,25 +45,9 @@ const plan = await limitly.plans.create({
 console.log('Created plan:', plan.data?.id);
 ```
 
-### Python
-
-```python
-plan = limitly.plans.create({
-    "name": "Basic Plan",
-    "description": "Plan for basic users",
-    "max_requests": 10000,
-    "request_period": "month",
-    "features": ["api_access", "basic_analytics"]
-})
-
-print(f"Created plan: {plan['data']['id']}")
-```
-
 ## Step 4: Create a User
 
 Create a user account:
-
-### Node.js
 
 ```typescript
 const user = await limitly.users.create({
@@ -97,23 +59,9 @@ const user = await limitly.users.create({
 console.log('Created user:', user.data?.user_id);
 ```
 
-### Python
-
-```python
-user = limitly.users.create({
-    "name": "John Doe",
-    "email": "john@example.com",
-    "plan_id": plan["data"]["id"]
-})
-
-print(f"Created user: {user['data']['user_id']}")
-```
-
 ## Step 5: Generate an API Key
 
 Create an API key for the user:
-
-### Node.js
 
 ```typescript
 const apiKey = await limitly.apiKeys.create({
@@ -125,23 +73,9 @@ const apiKey = await limitly.apiKeys.create({
 console.log('API Key:', apiKey.data?.api_key);
 ```
 
-### Python
-
-```python
-api_key = limitly.api_keys.create({
-    "name": "Production API Key",
-    "user_id": user["data"]["user_id"],
-    "plan_id": plan["data"]["id"]
-})
-
-print(f"API Key: {api_key['data']['api_key']}")
-```
-
 ## Step 6: Validate Requests
 
 Now you can validate requests in your application:
-
-### Node.js
 
 ```typescript
 // In your API middleware
@@ -172,41 +106,6 @@ app.use(async (req, res, next) => {
   
   next();
 });
-```
-
-### Python (Flask)
-
-```python
-from flask import Flask, request, jsonify
-
-app = Flask(__name__)
-
-@app.before_request
-def validate_request():
-    user_api_key = request.headers.get('X-API-Key')
-    
-    if not user_api_key:
-        return jsonify({"error": "API key required"}), 401
-    
-    result = limitly.validation.validate(
-        user_api_key,
-        request.path,
-        request.method
-    )
-    
-    if not result["success"]:
-        return jsonify({
-            "error": result["error"],
-            "details": result["details"]
-        }), 429
-    
-    # Add usage info to response headers
-    response = make_response()
-    response.headers['X-RateLimit-Limit'] = str(result["details"]["limit"])
-    response.headers['X-RateLimit-Remaining'] = str(result["details"]["remaining"])
-    response.headers['X-RateLimit-Reset'] = result["details"]["reset_time"]
-    
-    return response
 ```
 
 ## Step 7: Test Your Integration
