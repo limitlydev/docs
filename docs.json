@@ -1,9 +1,9 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
+  "theme": "aspen",
   "name": "Limitly Documentation",
   "colors": {
-    "primary": "#16A34A",
+    "primary": "#00994F",
     "light": "#07C983",
     "dark": "#15803D"
   },
@@ -22,7 +22,7 @@
             ]
           },
           {
-            "group": "SDK",
+            "group": "Node.js SDK",
             "pages": [
               "sdk/installation",
               "sdk/authentication",
@@ -33,7 +33,7 @@
             ]
           },
           {
-            "group": "API",
+            "group": "REST API",
             "pages": [
               "api/authentication",
               "api/validation",
@@ -74,7 +74,7 @@
   "navbar": {
     "links": [
       {
-        "label": "Contact",
+        "label": "Contact us",
         "href": "mailto:hi@limitly.com"
       }
     ],
@@ -99,8 +99,7 @@
   "footer": {
     "socials": {
       "x": "https://x.com/limitly",
-      "github": "https://github.com/limitly",
-      "linkedin": "https://linkedin.com/company/limitly"
+      "github": "https://github.com/limitlydev"
     }
   }
 }
