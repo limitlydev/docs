@@ -1,0 +1,296 @@
+---
+title: 'Users'
+description: 'Manage user accounts and track their usage'
+---
+
+# Users
+
+The Users module allows you to create and manage user accounts, track their usage, and associate them with plans.
+
+## List Users
+
+Get all users for your account:
+
+```typescript
+import { Limitly } from '@limitly/limitly-js';
+
+const limitly = new Limitly({
+  apiKey: 'your_limitly_api_key'
+});
+
+// List all users
+const users = await limitly.users.list();
+console.log('Users:', users.data);
+```
+
+## Create User
+
+Create a new user account:
+
+```typescript
+const user = await limitly.users.create({
+  name: 'John Doe',
+  email: 'john@example.com',
+  plan_id: 'plan_123'
+});
+
+console.log('Created User:', user.data);
+```
+
+### Create User Parameters
+
+<ParamField body="name" type="string" required>
+  The name of the user
+</ParamField>
+
+<ParamField body="email" type="string" required>
+  The email address of the user
+</ParamField>
+
+<ParamField body="plan_id" type="string">
+  The ID of the plan to associate with this user
+</ParamField>
+
+<ParamField body="metadata" type="object">
+  Additional metadata for the user
+</ParamField>
+
+## Get User
+
+Retrieve a specific user by ID:
+
+```typescript
+const user = await limitly.users.get('user_123');
+console.log('User:', user.data);
+```
+
+## Update User
+
+Update an existing user:
+
+```typescript
+const updatedUser = await limitly.users.update('user_123', {
+  name: 'John Smith',
+  plan_id: 'plan_456',
+  metadata: {
+    company: 'Acme Corp',
+    role: 'developer'
+  }
+});
+
+console.log('Updated User:', updatedUser.data);
+```
+
+### Update User Parameters
+
+<ParamField body="name" type="string">
+  New name for the user
+</ParamField>
+
+<ParamField body="email" type="string">
+  Updated email address
+</ParamField>
+
+<ParamField body="plan_id" type="string">
+  Updated plan ID to associate with the user
+</ParamField>
+
+<ParamField body="metadata" type="object">
+  Updated metadata for the user
+</ParamField>
+
+## Delete User
+
+Delete a user account (soft delete):
+
+```typescript
+const result = await limitly.users.delete('user_123');
+console.log('Delete result:', result.data?.message);
+```
+
+## Get User Usage
+
+Get usage statistics for a specific user:
+
+```typescript
+const usage = await limitly.users.getUsage('user_123');
+console.log('User usage:', usage.data);
+```
+
+### User Usage Response
+
+<ParamField body="current_usage" type="number">
+  Current usage count for the period
+</ParamField>
+
+<ParamField body="limit" type="number">
+  The limit for the current period
+</ParamField>
+
+<ParamField body="remaining" type="number">
+  Remaining requests for the period
+</ParamField>
+
+<ParamField body="reset_time" type="string">
+  When the usage will reset (ISO 8601 format)
+</ParamField>
+
+<ParamField body="period" type="string">
+  The current period
+</ParamField>
+
+<ParamField body="plan_name" type="string">
+  The name of the user's current plan
+</ParamField>
+
+## Get User API Keys
+
+Get all API keys for a specific user:
+
+```typescript
+const apiKeys = await limitly.users.getApiKeys('user_123');
+console.log('User API Keys:', apiKeys.data);
+```
+
+## Get User Requests
+
+Get detailed request history for a user:
+
+```typescript
+const requests = await limitly.users.getRequests('user_123');
+console.log('User requests:', requests.data);
+```
+
+### User Requests Response
+
+<ParamField body="requests" type="array">
+  Array of request objects
+</ParamField>
+
+<ParamField body="requests[].timestamp" type="string">
+  When the request was made (ISO 8601 format)
+</ParamField>
+
+<ParamField body="requests[].endpoint" type="string">
+  The endpoint that was called
+</ParamField>
+
+<ParamField body="requests[].method" type="string">
+  The HTTP method used
+</ParamField>
+
+<ParamField body="requests[].status" type="string">
+  The validation status (allowed/denied)
+</ParamField>
+
+<ParamField body="requests[].api_key_id" type="string">
+  The ID of the API key used for the request
+</ParamField>
+
+## Complete Example
+
+```typescript
+import { Limitly } from '@limitly/limitly-js';
+
+const limitly = new Limitly({
+  apiKey: 'your_limitly_api_key'
+});
+
+async function manageUsers() {
+  // Create a new user
+  const user = await limitly.users.create({
+    name: 'Jane Doe',
+    email: 'jane@example.com',
+    plan_id: 'plan_123',
+    metadata: {
+      company: 'Tech Corp',
+      role: 'developer'
+    }
+  });
+  
+  console.log('Created User:', user.data?.user_id);
+  
+  // Get user usage
+  const usage = await limitly.users.getUsage(user.data?.user_id!);
+  console.log('Current usage:', usage.data?.current_usage);
+  console.log('Limit:', usage.data?.limit);
+  console.log('Remaining:', usage.data?.remaining);
+  
+  // Get user's API keys
+  const apiKeys = await limitly.users.getApiKeys(user.data?.user_id!);
+  console.log('User API Keys:', apiKeys.data);
+  
+  // Get user's request history
+  const requests = await limitly.users.getRequests(user.data?.user_id!);
+  console.log('Recent requests:', requests.data?.requests);
+  
+  // Update the user
+  await limitly.users.update(user.data?.user_id!, {
+    name: 'Jane Smith',
+    plan_id: 'plan_456',
+    metadata: {
+      company: 'Tech Corp',
+      role: 'senior_developer',
+      department: 'engineering'
+    }
+  });
+}
+```
+
+## User Object
+
+The user object contains the following properties:
+
+<ParamField body="user_id" type="string">
+  Unique identifier for the user
+</ParamField>
+
+<ParamField body="name" type="string">
+  The name of the user
+</ParamField>
+
+<ParamField body="email" type="string">
+  The email address of the user
+</ParamField>
+
+<ParamField body="plan_id" type="string">
+  The ID of the plan associated with this user
+</ParamField>
+
+<ParamField body="created_at" type="string">
+  When the user was created (ISO 8601 format)
+</ParamField>
+
+<ParamField body="updated_at" type="string">
+  When the user was last updated (ISO 8601 format)
+</ParamField>
+
+<ParamField body="metadata" type="object">
+  Additional metadata for the user
+</ParamField>
+
+## User Management Best Practices
+
+<CardGroup cols={1}>
+  <Card title="User Organization">
+    Use metadata to organize users by company, team, or role. This helps with reporting and management.
+  </Card>
+</CardGroup>
+
+<CardGroup cols={1}>
+  <Card title="Plan Assignment">
+    Always assign users to appropriate plans based on their needs and usage patterns.
+  </Card>
+</CardGroup>
+
+<CardGroup cols={1}>
+  <Card title="Usage Monitoring">
+    Regularly monitor user usage to identify patterns and optimize plan assignments.
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+- [API Key Management](/sdk/api-keys) - Generate and manage API keys for users
+- [Plans](/sdk/plans) - Create and manage usage plans
+- [Request Validation](/sdk/validation) - Validate user requests 

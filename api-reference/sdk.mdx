@@ -1,0 +1,544 @@
+---
+title: 'SDK Reference'
+description: 'Complete reference for the Limitly SDK'
+---
+
+# SDK Reference
+
+Complete reference for the Limitly JavaScript SDK.
+
+## Limitly Class
+
+The main SDK class that provides access to all Limitly functionality.
+
+### Constructor
+
+```typescript
+new Limitly(config: LimitlyConfig)
+```
+
+#### Configuration Options
+
+<ParamField body="apiKey" type="string" required>
+  Your Limitly API key
+</ParamField>
+
+<ParamField body="baseUrl" type="string">
+  The base URL for the Limitly API. Defaults to `https://api.limitly.com`.
+</ParamField>
+
+<ParamField body="timeout" type="number">
+  Request timeout in milliseconds. Defaults to 30000 (30 seconds).
+</ParamField>
+
+### Properties
+
+<ParamField body="apiKeys" type="ApiKeysModule">
+  Module for managing API keys
+</ParamField>
+
+<ParamField body="plans" type="PlansModule">
+  Module for managing plans
+</ParamField>
+
+<ParamField body="users" type="UsersModule">
+  Module for managing users
+</ParamField>
+
+<ParamField body="validation" type="ValidationModule">
+  Module for validating requests
+</ParamField>
+
+### Methods
+
+<ParamField body="getClient()" type="HttpClient">
+  Gets the internal HTTP client. Useful for debugging and testing.
+</ParamField>
+
+## ValidationModule
+
+Module for validating user requests.
+
+### Methods
+
+#### validateRequest
+
+```typescript
+async validateRequest(
+  data: ValidateRequestRequest,
+  options?: RequestOptions
+): Promise<ValidateRequestResponse>
+```
+
+Validates a user request using their API key.
+
+<ParamField body="data" type="ValidateRequestRequest" required>
+  The validation request data
+</ParamField>
+
+<ParamField body="options" type="RequestOptions">
+  Additional request options
+</ParamField>
+
+#### validate
+
+```typescript
+async validate(
+  apiKey: string,
+  endpoint: string,
+  method: string,
+  options?: RequestOptions
+): Promise<ValidateRequestResponse>
+```
+
+Convenience method to validate a request with individual parameters.
+
+<ParamField body="apiKey" type="string" required>
+  The user's API key to validate
+</ParamField>
+
+<ParamField body="endpoint" type="string" required>
+  The endpoint being accessed
+</ParamField>
+
+<ParamField body="method" type="string" required>
+  The HTTP method being used
+</ParamField>
+
+<ParamField body="options" type="RequestOptions">
+  Additional request options
+</ParamField>
+
+## ApiKeysModule
+
+Module for managing API keys.
+
+### Methods
+
+#### list
+
+```typescript
+async list(options?: RequestOptions): Promise<PaginatedResponse<ApiKey>>
+```
+
+Lists all API keys for the authenticated owner.
+
+<ParamField body="options" type="RequestOptions">
+  Additional request options
+</ParamField>
+
+#### create
+
+```typescript
+async create(
+  data: CreateApiKeyRequest,
+  options?: RequestOptions
+): Promise<ApiResponse<ApiKey & { limitInfo?: LimitInfo }>>
+```
+
+Creates a new API key.
+
+<ParamField body="data" type="CreateApiKeyRequest" required>
+  The API key creation data
+</ParamField>
+
+<ParamField body="options" type="RequestOptions">
+  Additional request options
+</ParamField>
+
+#### get
+
+```typescript
+async get(keyId: string, options?: RequestOptions): Promise<ApiResponse<ApiKey>>
+```
+
+Gets a specific API key by ID.
+
+<ParamField body="keyId" type="string" required>
+  The ID of the API key
+</ParamField>
+
+<ParamField body="options" type="RequestOptions">
+  Additional request options
+</ParamField>
+
+#### update
+
+```typescript
+async update(
+  keyId: string,
+  data: UpdateApiKeyRequest,
+  options?: RequestOptions
+): Promise<ApiResponse<ApiKey>>
+```
+
+Updates an existing API key.
+
+<ParamField body="keyId" type="string" required>
+  The ID of the API key
+</ParamField>
+
+<ParamField body="data" type="UpdateApiKeyRequest" required>
+  The update data
+</ParamField>
+
+<ParamField body="options" type="RequestOptions">
+  Additional request options
+</ParamField>
+
+#### delete
+
+```typescript
+async delete(keyId: string, options?: RequestOptions): Promise<ApiResponse<{ message: string }>>
+```
+
+Deletes an API key (soft delete).
+
+<ParamField body="keyId" type="string" required>
+  The ID of the API key
+</ParamField>
+
+<ParamField body="options" type="RequestOptions">
+  Additional request options
+</ParamField>
+
+#### regenerate
+
+```typescript
+async regenerate(
+  keyId: string,
+  options?: RequestOptions
+): Promise<ApiResponse<ApiKey>>
+```
+
+Regenerates an existing API key.
+
+<ParamField body="keyId" type="string" required>
+  The ID of the API key
+</ParamField>
+
+<ParamField body="options" type="RequestOptions">
+  Additional request options
+</ParamField>
+
+#### getUsage
+
+```typescript
+async getUsage(keyId: string, options?: RequestOptions): Promise<ApiResponse<ApiKeyUsage>>
+```
+
+Gets usage statistics for an API key.
+
+<ParamField body="keyId" type="string" required>
+  The ID of the API key
+</ParamField>
+
+<ParamField body="options" type="RequestOptions">
+  Additional request options
+</ParamField>
+
+#### getRequests
+
+```typescript
+async getRequests(
+  keyId: string,
+  options?: RequestOptions
+): Promise<ApiResponse<ApiKeyRequestsResponse>>
+```
+
+Gets detailed request history for an API key.
+
+<ParamField body="keyId" type="string" required>
+  The ID of the API key
+</ParamField>
+
+<ParamField body="options" type="RequestOptions">
+  Additional request options
+</ParamField>
+
+## PlansModule
+
+Module for managing plans.
+
+### Methods
+
+#### list
+
+```typescript
+async list(options?: RequestOptions): Promise<PaginatedResponse<Plan>>
+```
+
+Lists all plans for the authenticated owner.
+
+<ParamField body="options" type="RequestOptions">
+  Additional request options
+</ParamField>
+
+#### create
+
+```typescript
+async create(
+  data: CreatePlanRequest,
+  options?: RequestOptions
+): Promise<ApiResponse<Plan>>
+```
+
+Creates a new plan.
+
+<ParamField body="data" type="CreatePlanRequest" required>
+  The plan creation data
+</ParamField>
+
+<ParamField body="options" type="RequestOptions">
+  Additional request options
+</ParamField>
+
+#### get
+
+```typescript
+async get(planId: string, options?: RequestOptions): Promise<ApiResponse<Plan>>
+```
+
+Gets a specific plan by ID.
+
+<ParamField body="planId" type="string" required>
+  The ID of the plan
+</ParamField>
+
+<ParamField body="options" type="RequestOptions">
+  Additional request options
+</ParamField>
+
+#### update
+
+```typescript
+async update(
+  planId: string,
+  data: UpdatePlanRequest,
+  options?: RequestOptions
+): Promise<ApiResponse<Plan>>
+```
+
+Updates an existing plan.
+
+<ParamField body="planId" type="string" required>
+  The ID of the plan
+</ParamField>
+
+<ParamField body="data" type="UpdatePlanRequest" required>
+  The update data
+</ParamField>
+
+<ParamField body="options" type="RequestOptions">
+  Additional request options
+</ParamField>
+
+#### delete
+
+```typescript
+async delete(planId: string, options?: RequestOptions): Promise<ApiResponse<{ message: string }>>
+```
+
+Deletes a plan (soft delete).
+
+<ParamField body="planId" type="string" required>
+  The ID of the plan
+</ParamField>
+
+<ParamField body="options" type="RequestOptions">
+  Additional request options
+</ParamField>
+
+#### getUsage
+
+```typescript
+async getUsage(planId: string, options?: RequestOptions): Promise<ApiResponse<PlanUsage>>
+```
+
+Gets usage statistics for a plan.
+
+<ParamField body="planId" type="string" required>
+  The ID of the plan
+</ParamField>
+
+<ParamField body="options" type="RequestOptions">
+  Additional request options
+</ParamField>
+
+#### getUsers
+
+```typescript
+async getUsers(planId: string, options?: RequestOptions): Promise<PaginatedResponse<User>>
+```
+
+Gets all users on a specific plan.
+
+<ParamField body="planId" type="string" required>
+  The ID of the plan
+</ParamField>
+
+<ParamField body="options" type="RequestOptions">
+  Additional request options
+</ParamField>
+
+## UsersModule
+
+Module for managing users.
+
+### Methods
+
+#### list
+
+```typescript
+async list(options?: RequestOptions): Promise<PaginatedResponse<User>>
+```
+
+Lists all users for the authenticated owner.
+
+<ParamField body="options" type="RequestOptions">
+  Additional request options
+</ParamField>
+
+#### create
+
+```typescript
+async create(
+  data: CreateUserRequest,
+  options?: RequestOptions
+): Promise<ApiResponse<User>>
+```
+
+Creates a new user.
+
+<ParamField body="data" type="CreateUserRequest" required>
+  The user creation data
+</ParamField>
+
+<ParamField body="options" type="RequestOptions">
+  Additional request options
+</ParamField>
+
+#### get
+
+```typescript
+async get(userId: string, options?: RequestOptions): Promise<ApiResponse<User>>
+```
+
+Gets a specific user by ID.
+
+<ParamField body="userId" type="string" required>
+  The ID of the user
+</ParamField>
+
+<ParamField body="options" type="RequestOptions">
+  Additional request options
+</ParamField>
+
+#### update
+
+```typescript
+async update(
+  userId: string,
+  data: UpdateUserRequest,
+  options?: RequestOptions
+): Promise<ApiResponse<User>>
+```
+
+Updates an existing user.
+
+<ParamField body="userId" type="string" required>
+  The ID of the user
+</ParamField>
+
+<ParamField body="data" type="UpdateUserRequest" required>
+  The update data
+</ParamField>
+
+<ParamField body="options" type="RequestOptions">
+  Additional request options
+</ParamField>
+
+#### delete
+
+```typescript
+async delete(userId: string, options?: RequestOptions): Promise<ApiResponse<{ message: string }>>
+```
+
+Deletes a user (soft delete).
+
+<ParamField body="userId" type="string" required>
+  The ID of the user
+</ParamField>
+
+<ParamField body="options" type="RequestOptions">
+  Additional request options
+</ParamField>
+
+#### getUsage
+
+```typescript
+async getUsage(userId: string, options?: RequestOptions): Promise<ApiResponse<UserUsage>>
+```
+
+Gets usage statistics for a user.
+
+<ParamField body="userId" type="string" required>
+  The ID of the user
+</ParamField>
+
+<ParamField body="options" type="RequestOptions">
+  Additional request options
+</ParamField>
+
+#### getApiKeys
+
+```typescript
+async getApiKeys(userId: string, options?: RequestOptions): Promise<PaginatedResponse<ApiKey>>
+```
+
+Gets all API keys for a specific user.
+
+<ParamField body="userId" type="string" required>
+  The ID of the user
+</ParamField>
+
+<ParamField body="options" type="RequestOptions">
+  Additional request options
+</ParamField>
+
+#### getRequests
+
+```typescript
+async getRequests(userId: string, options?: RequestOptions): Promise<ApiResponse<UserRequestsResponse>>
+```
+
+Gets detailed request history for a user.
+
+<ParamField body="userId" type="string" required>
+  The ID of the user
+</ParamField>
+
+<ParamField body="options" type="RequestOptions">
+  Additional request options
+</ParamField>
+
+## Error Handling
+
+The SDK throws `LimitlyError` for API errors:
+
+```typescript
+try {
+  const result = await limitly.validation.validate('invalid_key', '/api/test', 'GET');
+} catch (error) {
+  if (error instanceof LimitlyError) {
+    console.log('API Error:', error.message);
+    console.log('Error Code:', error.code);
+    console.log('Status Code:', error.statusCode);
+  }
+}
+```
+
+## Next Steps
+
+- [Types](/api-reference/types) - Complete type definitions
+- [API Endpoints](/api-reference/endpoints/validation) - REST API reference 

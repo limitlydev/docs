@@ -1,0 +1,303 @@
+---
+title: 'Plans'
+description: 'Create and manage usage plans via the REST API'
+---
+
+# Plans
+
+Manage usage plans that define rate limits and features for your users using the Limitly REST API.
+
+## List Plans
+
+Get all plans for your account:
+
+```bash
+curl -X GET \
+  -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
+  https://api.limitly.com/v1/plans
+```
+
+### Response
+
+```json
+{
+  "data": [
+    {
+      "id": "plan_123",
+      "name": "Basic Plan",
+      "description": "Plan for basic users",
+      "max_requests": 10000,
+      "request_period": "month",
+      "features": ["api_access", "basic_analytics"],
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z",
+      "metadata": {}
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 10,
+    "total": 1
+  }
+}
+```
+
+## Create Plan
+
+Create a new usage plan:
+
+```bash
+curl -X POST \
+  -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Basic Plan",
+    "description": "Plan for basic users",
+    "max_requests": 10000,
+    "request_period": "month",
+    "features": ["api_access", "basic_analytics"]
+  }' \
+  https://api.limitly.com/v1/plans
+```
+
+### Request Parameters
+
+<ParamField body="name" type="string" required>
+  The name of the plan
+</ParamField>
+
+<ParamField body="description" type="string">
+  A description of the plan
+</ParamField>
+
+<ParamField body="max_requests" type="number" required>
+  Maximum number of requests allowed per period
+</ParamField>
+
+<ParamField body="request_period" type="string" required>
+  The period for the request limit (day, week, month, year)
+</ParamField>
+
+<ParamField body="features" type="array">
+  Array of features included in this plan
+</ParamField>
+
+<ParamField body="metadata" type="object">
+  Additional metadata for the plan
+</ParamField>
+
+### Response
+
+```json
+{
+  "data": {
+    "id": "plan_123",
+    "name": "Basic Plan",
+    "description": "Plan for basic users",
+    "max_requests": 10000,
+    "request_period": "month",
+    "features": ["api_access", "basic_analytics"],
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z",
+    "metadata": {}
+  }
+}
+```
+
+## Get Plan
+
+Retrieve a specific plan by ID:
+
+```bash
+curl -X GET \
+  -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
+  https://api.limitly.com/v1/plans/plan_123
+```
+
+### Response
+
+```json
+{
+  "data": {
+    "id": "plan_123",
+    "name": "Basic Plan",
+    "description": "Plan for basic users",
+    "max_requests": 10000,
+    "request_period": "month",
+    "features": ["api_access", "basic_analytics"],
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z",
+    "metadata": {}
+  }
+}
+```
+
+## Update Plan
+
+Update an existing plan:
+
+```bash
+curl -X PUT \
+  -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Updated Basic Plan",
+    "max_requests": 15000,
+    "features": ["api_access", "basic_analytics", "priority_support"]
+  }' \
+  https://api.limitly.com/v1/plans/plan_123
+```
+
+### Request Parameters
+
+<ParamField body="name" type="string">
+  New name for the plan
+</ParamField>
+
+<ParamField body="description" type="string">
+  Updated description for the plan
+</ParamField>
+
+<ParamField body="max_requests" type="number">
+  Updated maximum number of requests
+</ParamField>
+
+<ParamField body="request_period" type="string">
+  Updated request period
+</ParamField>
+
+<ParamField body="features" type="array">
+  Updated array of features
+</ParamField>
+
+<ParamField body="metadata" type="object">
+  Updated metadata for the plan
+</ParamField>
+
+## Delete Plan
+
+Delete a plan (soft delete):
+
+```bash
+curl -X DELETE \
+  -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
+  https://api.limitly.com/v1/plans/plan_123
+```
+
+### Response
+
+```json
+{
+  "data": {
+    "message": "Plan deleted successfully"
+  }
+}
+```
+
+## Get Plan Usage
+
+Get usage statistics for a specific plan:
+
+```bash
+curl -X GET \
+  -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
+  https://api.limitly.com/v1/plans/plan_123/usage
+```
+
+### Response
+
+```json
+{
+  "data": {
+    "total_users": 25,
+    "total_requests": 150000,
+    "average_usage": 6000,
+    "period": "month"
+  }
+}
+```
+
+## Get Plan Users
+
+Get all users on a specific plan:
+
+```bash
+curl -X GET \
+  -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
+  https://api.limitly.com/v1/plans/plan_123/users
+```
+
+### Response
+
+```json
+{
+  "data": [
+    {
+      "user_id": "user_123",
+      "name": "John Doe",
+      "email": "john@example.com",
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 10,
+    "total": 1
+  }
+}
+```
+
+## Error Responses
+
+### Plan Not Found
+
+```json
+{
+  "error": "Plan not found",
+  "code": "PLAN_NOT_FOUND"
+}
+```
+
+### Validation Error
+
+```json
+{
+  "error": "Validation failed",
+  "code": "VALIDATION_ERROR",
+  "details": {
+    "field": "max_requests",
+    "message": "Max requests must be greater than 0"
+  }
+}
+```
+
+## Plan Periods
+
+The following periods are supported:
+
+| Period | Description |
+|--------|-------------|
+| `day` | Daily limit (resets at midnight UTC) |
+| `week` | Weekly limit (resets on Monday UTC) |
+| `month` | Monthly limit (resets on the 1st of each month) |
+| `year` | Yearly limit (resets on January 1st) |
+
+## Common Plan Features
+
+Here are some common features you might include in your plans:
+
+- `api_access` - Basic API access
+- `basic_analytics` - Basic usage analytics
+- `advanced_analytics` - Advanced analytics and reporting
+- `priority_support` - Priority customer support
+- `webhooks` - Webhook notifications
+- `email_support` - Email support
+- `phone_support` - Phone support
+- `custom_domains` - Custom domain support
+- `team_management` - Team and user management features
+
+## Next Steps
+
+- [Users](/api/users) - Manage user accounts and usage
+- [API Key Management](/api/api-keys) - Generate and manage API keys
+- [Request Validation](/api/validation) - Validate user requests 

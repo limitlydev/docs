@@ -1,0 +1,74 @@
+---
+title: 'SDK Installation'
+description: 'Install and set up the Limitly SDK for your project'
+---
+
+# SDK Installation
+
+The Limitly SDK provides a simple and powerful way to integrate rate limiting into your application.
+
+## Installation
+
+### NPM
+
+```bash
+npm install @limitly/limitly-js
+```
+
+### Yarn
+
+```bash
+yarn add @limitly/limitly-js
+```
+
+### PNPM
+
+```bash
+pnpm add @limitly/limitly-js
+```
+
+## Basic Setup
+
+Import and initialize the SDK:
+
+```typescript
+import { Limitly } from '@limitly/limitly-js';
+
+const limitly = new Limitly({
+  apiKey: 'your_limitly_api_key'
+});
+```
+
+## Configuration Options
+
+The SDK accepts the following configuration options:
+
+<ParamField body="apiKey" type="string" required>
+  Your Limitly API key. You can find this in your Limitly dashboard.
+</ParamField>
+
+<ParamField body="baseUrl" type="string">
+  The base URL for the Limitly API. Defaults to `https://api.limitly.com`.
+</ParamField>
+
+<ParamField body="timeout" type="number">
+  Request timeout in milliseconds. Defaults to 30000 (30 seconds).
+</ParamField>
+
+## Example Configuration
+
+```typescript
+import { Limitly } from '@limitly/limitly-js';
+
+const limitly = new Limitly({
+  apiKey: 'lk_1234567890abcdef',
+  baseUrl: 'https://api.limitly.com',
+  timeout: 30000
+});
+```
+
+## Next Steps
+
+- [Authentication](/sdk/authentication) - Learn how to authenticate with the API
+- [Request Validation](/sdk/validation) - Validate user requests
+- [API Key Management](/sdk/api-keys) - Manage API keys for your users 

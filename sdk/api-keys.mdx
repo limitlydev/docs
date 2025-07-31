@@ -1,0 +1,256 @@
+---
+title: 'API Key Management'
+description: 'Generate, manage, and track API keys for your users'
+---
+
+# API Key Management
+
+The API Keys module allows you to create, manage, and track API keys for your users.
+
+## List API Keys
+
+Get all API keys for your account:
+
+```typescript
+import { Limitly } from '@limitly/limitly-js';
+
+const limitly = new Limitly({
+  apiKey: 'your_limitly_api_key'
+});
+
+// List all API keys
+const keys = await limitly.apiKeys.list();
+console.log('API Keys:', keys.data);
+```
+
+## Create API Key
+
+Create a new API key for a user:
+
+```typescript
+const newKey = await limitly.apiKeys.create({
+  name: 'New API Key',
+  user_id: 'user_123',
+  plan_id: 'plan_456'
+});
+
+console.log('New API Key:', newKey.data?.api_key);
+```
+
+### Create API Key Parameters
+
+<ParamField body="name" type="string" required>
+  A descriptive name for the API key
+</ParamField>
+
+<ParamField body="user_id" type="string" required>
+  The ID of the user who will use this API key
+</ParamField>
+
+<ParamField body="plan_id" type="string">
+  The ID of the plan to associate with this API key
+</ParamField>
+
+<ParamField body="metadata" type="object">
+  Additional metadata for the API key
+</ParamField>
+
+## Get API Key
+
+Retrieve a specific API key by ID:
+
+```typescript
+const key = await limitly.apiKeys.get('key_123');
+console.log('API Key:', key.data);
+```
+
+## Update API Key
+
+Update an existing API key:
+
+```typescript
+const updatedKey = await limitly.apiKeys.update('key_123', {
+  name: 'Updated API Key Name',
+  metadata: {
+    environment: 'production'
+  }
+});
+
+console.log('Updated API Key:', updatedKey.data);
+```
+
+### Update API Key Parameters
+
+<ParamField body="name" type="string">
+  New name for the API key
+</ParamField>
+
+<ParamField body="metadata" type="object">
+  Updated metadata for the API key
+</ParamField>
+
+## Delete API Key
+
+Delete an API key (soft delete):
+
+```typescript
+const result = await limitly.apiKeys.delete('key_123');
+console.log('Delete result:', result.data?.message);
+```
+
+## Regenerate API Key
+
+Regenerate an existing API key (creates a new key value):
+
+```typescript
+const regeneratedKey = await limitly.apiKeys.regenerate('key_123');
+console.log('New API Key:', regeneratedKey.data?.api_key);
+```
+
+## Get API Key Usage
+
+Get usage statistics for a specific API key:
+
+```typescript
+const usage = await limitly.apiKeys.getUsage('key_123');
+console.log('Usage:', usage.data);
+```
+
+### Usage Response
+
+<ParamField body="current_usage" type="number">
+  Current usage count for the period
+</ParamField>
+
+<ParamField body="limit" type="number">
+  The limit for the current period
+</ParamField>
+
+<ParamField body="remaining" type="number">
+  Remaining requests for the period
+</ParamField>
+
+<ParamField body="reset_time" type="string">
+  When the usage will reset (ISO 8601 format)
+</ParamField>
+
+<ParamField body="period" type="string">
+  The current period (day, week, month)
+</ParamField>
+
+## Get API Key Requests
+
+Get detailed request history for an API key:
+
+```typescript
+const requests = await limitly.apiKeys.getRequests('key_123');
+console.log('Request history:', requests.data);
+```
+
+### Request History Response
+
+<ParamField body="requests" type="array">
+  Array of request objects
+</ParamField>
+
+<ParamField body="requests[].timestamp" type="string">
+  When the request was made (ISO 8601 format)
+</ParamField>
+
+<ParamField body="requests[].endpoint" type="string">
+  The endpoint that was called
+</ParamField>
+
+<ParamField body="requests[].method" type="string">
+  The HTTP method used
+</ParamField>
+
+<ParamField body="requests[].status" type="string">
+  The validation status (allowed/denied)
+</ParamField>
+
+<ParamField body="requests[].ip_address" type="string">
+  The IP address of the request
+</ParamField>
+
+## Complete Example
+
+```typescript
+import { Limitly } from '@limitly/limitly-js';
+
+const limitly = new Limitly({
+  apiKey: 'your_limitly_api_key'
+});
+
+async function manageApiKeys() {
+  // Create a new API key
+  const newKey = await limitly.apiKeys.create({
+    name: 'Production API Key',
+    user_id: 'user_123',
+    plan_id: 'plan_456'
+  });
+  
+  console.log('Created API Key:', newKey.data?.api_key);
+  
+  // Get usage statistics
+  const usage = await limitly.apiKeys.getUsage(newKey.data?.id!);
+  console.log('Current usage:', usage.data?.current_usage);
+  console.log('Limit:', usage.data?.limit);
+  console.log('Remaining:', usage.data?.remaining);
+  
+  // Get request history
+  const requests = await limitly.apiKeys.getRequests(newKey.data?.id!);
+  console.log('Recent requests:', requests.data?.requests);
+  
+  // Update the API key
+  await limitly.apiKeys.update(newKey.data?.id!, {
+    name: 'Updated Production API Key',
+    metadata: {
+      environment: 'production',
+      team: 'backend'
+    }
+  });
+}
+```
+
+## API Key Object
+
+The API key object contains the following properties:
+
+<ParamField body="id" type="string">
+  Unique identifier for the API key
+</ParamField>
+
+<ParamField body="api_key" type="string">
+  The actual API key value (only shown on creation/regeneration)
+</ParamField>
+
+<ParamField body="name" type="string">
+  The name of the API key
+</ParamField>
+
+<ParamField body="user_id" type="string">
+  The ID of the user who owns this API key
+</ParamField>
+
+<ParamField body="plan_id" type="string">
+  The ID of the plan associated with this API key
+</ParamField>
+
+<ParamField body="created_at" type="string">
+  When the API key was created (ISO 8601 format)
+</ParamField>
+
+<ParamField body="updated_at" type="string">
+  When the API key was last updated (ISO 8601 format)
+</ParamField>
+
+<ParamField body="metadata" type="object">
+  Additional metadata for the API key
+</ParamField>
+
+## Next Steps
+
+- [Plans](/sdk/plans) - Create and manage usage plans
+- [Users](/sdk/users) - Manage user accounts and usage
+- [Request Validation](/sdk/validation) - Validate user requests 

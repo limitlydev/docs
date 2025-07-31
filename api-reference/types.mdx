@@ -1,0 +1,748 @@
+---
+title: 'Type Definitions'
+description: 'Complete TypeScript type definitions for the Limitly SDK'
+---
+
+# Type Definitions
+
+Complete TypeScript type definitions for the Limitly SDK.
+
+## Configuration Types
+
+### LimitlyConfig
+
+```typescript
+interface LimitlyConfig {
+  apiKey: string;
+  baseUrl?: string;
+  timeout?: number;
+}
+```
+
+Configuration options for the Limitly SDK.
+
+<ParamField body="apiKey" type="string" required>
+  Your Limitly API key
+</ParamField>
+
+<ParamField body="baseUrl" type="string">
+  The base URL for the Limitly API. Defaults to `https://api.limitly.com`.
+</ParamField>
+
+<ParamField body="timeout" type="number">
+  Request timeout in milliseconds. Defaults to 30000 (30 seconds).
+</ParamField>
+
+## Request Types
+
+### RequestOptions
+
+```typescript
+interface RequestOptions {
+  headers?: Record<string, string>;
+  timeout?: number;
+}
+```
+
+Additional options for API requests.
+
+<ParamField body="headers" type="Record<string, string>">
+  Additional headers to include in the request
+</ParamField>
+
+<ParamField body="timeout" type="number">
+  Request timeout in milliseconds
+</ParamField>
+
+## Response Types
+
+### ApiResponse
+
+```typescript
+interface ApiResponse<T> {
+  data: T;
+  message?: string;
+}
+```
+
+Standard API response wrapper.
+
+<ParamField body="data" type="T">
+  The response data
+</ParamField>
+
+<ParamField body="message" type="string">
+  Optional response message
+</ParamField>
+
+### PaginatedResponse
+
+```typescript
+interface PaginatedResponse<T> {
+  data: T[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+  };
+}
+```
+
+Paginated response wrapper.
+
+<ParamField body="data" type="T[]">
+  Array of response data
+</ParamField>
+
+<ParamField body="pagination" type="object">
+  Pagination information
+</ParamField>
+
+<ParamField body="pagination.page" type="number">
+  Current page number
+</ParamField>
+
+<ParamField body="pagination.limit" type="number">
+  Number of items per page
+</ParamField>
+
+<ParamField body="pagination.total" type="number">
+  Total number of items
+</ParamField>
+
+## Validation Types
+
+### ValidateRequestRequest
+
+```typescript
+interface ValidateRequestRequest {
+  api_key: string;
+  endpoint: string;
+  method: string;
+  metadata?: Record<string, any>;
+}
+```
+
+Request data for validating a user request.
+
+<ParamField body="api_key" type="string" required>
+  The user's API key to validate
+</ParamField>
+
+<ParamField body="endpoint" type="string" required>
+  The endpoint being accessed
+</ParamField>
+
+<ParamField body="method" type="string" required>
+  The HTTP method being used
+</ParamField>
+
+<ParamField body="metadata" type="Record<string, any>">
+  Additional metadata for the request
+</ParamField>
+
+### ValidateRequestResponse
+
+```typescript
+interface ValidateRequestResponse {
+  success: boolean;
+  error?: string;
+  details?: {
+    current_usage: number;
+    limit: number;
+    remaining: number;
+    reset_time: string;
+  };
+}
+```
+
+Response from request validation.
+
+<ParamField body="success" type="boolean">
+  Whether the request was allowed or denied
+</ParamField>
+
+<ParamField body="error" type="string">
+  Error message if the request was denied
+</ParamField>
+
+<ParamField body="details" type="object">
+  Additional details about the request and usage
+</ParamField>
+
+<ParamField body="details.current_usage" type="number">
+  Current usage count for the period
+</ParamField>
+
+<ParamField body="details.limit" type="number">
+  The limit for the current period
+</ParamField>
+
+<ParamField body="details.remaining" type="number">
+  Remaining requests for the period
+</ParamField>
+
+<ParamField body="details.reset_time" type="string">
+  When the usage will reset (ISO 8601 format)
+</ParamField>
+
+## API Key Types
+
+### ApiKey
+
+```typescript
+interface ApiKey {
+  id: string;
+  api_key?: string;
+  name: string;
+  user_id: string;
+  plan_id?: string;
+  created_at: string;
+  updated_at: string;
+  metadata?: Record<string, any>;
+}
+```
+
+API key object.
+
+<ParamField body="id" type="string">
+  Unique identifier for the API key
+</ParamField>
+
+<ParamField body="api_key" type="string">
+  The actual API key value (only shown on creation/regeneration)
+</ParamField>
+
+<ParamField body="name" type="string">
+  The name of the API key
+</ParamField>
+
+<ParamField body="user_id" type="string">
+  The ID of the user who owns this API key
+</ParamField>
+
+<ParamField body="plan_id" type="string">
+  The ID of the plan associated with this API key
+</ParamField>
+
+<ParamField body="created_at" type="string">
+  When the API key was created (ISO 8601 format)
+</ParamField>
+
+<ParamField body="updated_at" type="string">
+  When the API key was last updated (ISO 8601 format)
+</ParamField>
+
+<ParamField body="metadata" type="Record<string, any>">
+  Additional metadata for the API key
+</ParamField>
+
+### CreateApiKeyRequest
+
+```typescript
+interface CreateApiKeyRequest {
+  name: string;
+  user_id: string;
+  plan_id?: string;
+  metadata?: Record<string, any>;
+}
+```
+
+Request data for creating an API key.
+
+<ParamField body="name" type="string" required>
+  A descriptive name for the API key
+</ParamField>
+
+<ParamField body="user_id" type="string" required>
+  The ID of the user who will use this API key
+</ParamField>
+
+<ParamField body="plan_id" type="string">
+  The ID of the plan to associate with this API key
+</ParamField>
+
+<ParamField body="metadata" type="Record<string, any>">
+  Additional metadata for the API key
+</ParamField>
+
+### UpdateApiKeyRequest
+
+```typescript
+interface UpdateApiKeyRequest {
+  name?: string;
+  metadata?: Record<string, any>;
+}
+```
+
+Request data for updating an API key.
+
+<ParamField body="name" type="string">
+  New name for the API key
+</ParamField>
+
+<ParamField body="metadata" type="Record<string, any>">
+  Updated metadata for the API key
+</ParamField>
+
+### ApiKeyUsage
+
+```typescript
+interface ApiKeyUsage {
+  current_usage: number;
+  limit: number;
+  remaining: number;
+  reset_time: string;
+  period: string;
+}
+```
+
+Usage statistics for an API key.
+
+<ParamField body="current_usage" type="number">
+  Current usage count for the period
+</ParamField>
+
+<ParamField body="limit" type="number">
+  The limit for the current period
+</ParamField>
+
+<ParamField body="remaining" type="number">
+  Remaining requests for the period
+</ParamField>
+
+<ParamField body="reset_time" type="string">
+  When the usage will reset (ISO 8601 format)
+</ParamField>
+
+<ParamField body="period" type="string">
+  The current period
+</ParamField>
+
+### ApiKeyRequestsResponse
+
+```typescript
+interface ApiKeyRequestsResponse {
+  requests: Array<{
+    timestamp: string;
+    endpoint: string;
+    method: string;
+    status: string;
+    ip_address?: string;
+  }>;
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+  };
+}
+```
+
+Request history for an API key.
+
+<ParamField body="requests" type="array">
+  Array of request objects
+</ParamField>
+
+<ParamField body="requests[].timestamp" type="string">
+  When the request was made (ISO 8601 format)
+</ParamField>
+
+<ParamField body="requests[].endpoint" type="string">
+  The endpoint that was called
+</ParamField>
+
+<ParamField body="requests[].method" type="string">
+  The HTTP method used
+</ParamField>
+
+<ParamField body="requests[].status" type="string">
+  The validation status (allowed/denied)
+</ParamField>
+
+<ParamField body="requests[].ip_address" type="string">
+  The IP address of the request
+</ParamField>
+
+## Plan Types
+
+### Plan
+
+```typescript
+interface Plan {
+  id: string;
+  name: string;
+  description?: string;
+  max_requests: number;
+  request_period: string;
+  features?: string[];
+  created_at: string;
+  updated_at: string;
+  metadata?: Record<string, any>;
+}
+```
+
+Plan object.
+
+<ParamField body="id" type="string">
+  Unique identifier for the plan
+</ParamField>
+
+<ParamField body="name" type="string">
+  The name of the plan
+</ParamField>
+
+<ParamField body="description" type="string">
+  The description of the plan
+</ParamField>
+
+<ParamField body="max_requests" type="number">
+  Maximum number of requests allowed per period
+</ParamField>
+
+<ParamField body="request_period" type="string">
+  The period for the request limit
+</ParamField>
+
+<ParamField body="features" type="string[]">
+  Array of features included in this plan
+</ParamField>
+
+<ParamField body="created_at" type="string">
+  When the plan was created (ISO 8601 format)
+</ParamField>
+
+<ParamField body="updated_at" type="string">
+  When the plan was last updated (ISO 8601 format)
+</ParamField>
+
+<ParamField body="metadata" type="Record<string, any>">
+  Additional metadata for the plan
+</ParamField>
+
+### CreatePlanRequest
+
+```typescript
+interface CreatePlanRequest {
+  name: string;
+  description?: string;
+  max_requests: number;
+  request_period: string;
+  features?: string[];
+  metadata?: Record<string, any>;
+}
+```
+
+Request data for creating a plan.
+
+<ParamField body="name" type="string" required>
+  The name of the plan
+</ParamField>
+
+<ParamField body="description" type="string">
+  A description of the plan
+</ParamField>
+
+<ParamField body="max_requests" type="number" required>
+  Maximum number of requests allowed per period
+</ParamField>
+
+<ParamField body="request_period" type="string" required>
+  The period for the request limit (day, week, month, year)
+</ParamField>
+
+<ParamField body="features" type="string[]">
+  Array of features included in this plan
+</ParamField>
+
+<ParamField body="metadata" type="Record<string, any>">
+  Additional metadata for the plan
+</ParamField>
+
+### UpdatePlanRequest
+
+```typescript
+interface UpdatePlanRequest {
+  name?: string;
+  description?: string;
+  max_requests?: number;
+  request_period?: string;
+  features?: string[];
+  metadata?: Record<string, any>;
+}
+```
+
+Request data for updating a plan.
+
+<ParamField body="name" type="string">
+  New name for the plan
+</ParamField>
+
+<ParamField body="description" type="string">
+  Updated description for the plan
+</ParamField>
+
+<ParamField body="max_requests" type="number">
+  Updated maximum number of requests
+</ParamField>
+
+<ParamField body="request_period" type="string">
+  Updated request period
+</ParamField>
+
+<ParamField body="features" type="string[]">
+  Updated array of features
+</ParamField>
+
+<ParamField body="metadata" type="Record<string, any>">
+  Updated metadata for the plan
+</ParamField>
+
+### PlanUsage
+
+```typescript
+interface PlanUsage {
+  total_users: number;
+  total_requests: number;
+  average_usage: number;
+  period: string;
+}
+```
+
+Usage statistics for a plan.
+
+<ParamField body="total_users" type="number">
+  Total number of users on this plan
+</ParamField>
+
+<ParamField body="total_requests" type="number">
+  Total requests made by users on this plan
+</ParamField>
+
+<ParamField body="average_usage" type="number">
+  Average usage per user on this plan
+</ParamField>
+
+<ParamField body="period" type="string">
+  The current period
+</ParamField>
+
+## User Types
+
+### User
+
+```typescript
+interface User {
+  user_id: string;
+  name: string;
+  email: string;
+  plan_id?: string;
+  created_at: string;
+  updated_at: string;
+  metadata?: Record<string, any>;
+}
+```
+
+User object.
+
+<ParamField body="user_id" type="string">
+  Unique identifier for the user
+</ParamField>
+
+<ParamField body="name" type="string">
+  The name of the user
+</ParamField>
+
+<ParamField body="email" type="string">
+  The email address of the user
+</ParamField>
+
+<ParamField body="plan_id" type="string">
+  The ID of the plan associated with this user
+</ParamField>
+
+<ParamField body="created_at" type="string">
+  When the user was created (ISO 8601 format)
+</ParamField>
+
+<ParamField body="updated_at" type="string">
+  When the user was last updated (ISO 8601 format)
+</ParamField>
+
+<ParamField body="metadata" type="Record<string, any>">
+  Additional metadata for the user
+</ParamField>
+
+### CreateUserRequest
+
+```typescript
+interface CreateUserRequest {
+  name: string;
+  email: string;
+  plan_id?: string;
+  metadata?: Record<string, any>;
+}
+```
+
+Request data for creating a user.
+
+<ParamField body="name" type="string" required>
+  The name of the user
+</ParamField>
+
+<ParamField body="email" type="string" required>
+  The email address of the user
+</ParamField>
+
+<ParamField body="plan_id" type="string">
+  The ID of the plan to associate with this user
+</ParamField>
+
+<ParamField body="metadata" type="Record<string, any>">
+  Additional metadata for the user
+</ParamField>
+
+### UpdateUserRequest
+
+```typescript
+interface UpdateUserRequest {
+  name?: string;
+  email?: string;
+  plan_id?: string;
+  metadata?: Record<string, any>;
+}
+```
+
+Request data for updating a user.
+
+<ParamField body="name" type="string">
+  New name for the user
+</ParamField>
+
+<ParamField body="email" type="string">
+  Updated email address
+</ParamField>
+
+<ParamField body="plan_id" type="string">
+  Updated plan ID to associate with the user
+</ParamField>
+
+<ParamField body="metadata" type="Record<string, any>">
+  Updated metadata for the user
+</ParamField>
+
+### UserUsage
+
+```typescript
+interface UserUsage {
+  current_usage: number;
+  limit: number;
+  remaining: number;
+  reset_time: string;
+  period: string;
+  plan_name?: string;
+}
+```
+
+Usage statistics for a user.
+
+<ParamField body="current_usage" type="number">
+  Current usage count for the period
+</ParamField>
+
+<ParamField body="limit" type="number">
+  The limit for the current period
+</ParamField>
+
+<ParamField body="remaining" type="number">
+  Remaining requests for the period
+</ParamField>
+
+<ParamField body="reset_time" type="string">
+  When the usage will reset (ISO 8601 format)
+</ParamField>
+
+<ParamField body="period" type="string">
+  The current period
+</ParamField>
+
+<ParamField body="plan_name" type="string">
+  The name of the user's current plan
+</ParamField>
+
+### UserRequestsResponse
+
+```typescript
+interface UserRequestsResponse {
+  requests: Array<{
+    timestamp: string;
+    endpoint: string;
+    method: string;
+    status: string;
+    api_key_id?: string;
+  }>;
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+  };
+}
+```
+
+Request history for a user.
+
+<ParamField body="requests" type="array">
+  Array of request objects
+</ParamField>
+
+<ParamField body="requests[].timestamp" type="string">
+  When the request was made (ISO 8601 format)
+</ParamField>
+
+<ParamField body="requests[].endpoint" type="string">
+  The endpoint that was called
+</ParamField>
+
+<ParamField body="requests[].method" type="string">
+  The HTTP method used
+</ParamField>
+
+<ParamField body="requests[].status" type="string">
+  The validation status (allowed/denied)
+</ParamField>
+
+<ParamField body="requests[].api_key_id" type="string">
+  The ID of the API key used for the request
+</ParamField>
+
+## Error Types
+
+### LimitlyError
+
+```typescript
+class LimitlyError extends Error {
+  code: string;
+  statusCode: number;
+  
+  constructor(message: string, code: string, statusCode: number);
+}
+```
+
+Error thrown by the SDK for API errors.
+
+<ParamField body="message" type="string">
+  Error message
+</ParamField>
+
+<ParamField body="code" type="string">
+  Error code
+</ParamField>
+
+<ParamField body="statusCode" type="number">
+  HTTP status code
+</ParamField>
+
+## Next Steps
+
+- [SDK Reference](/api-reference/sdk) - Complete SDK reference
+- [API Endpoints](/api-reference/endpoints/validation) - REST API reference 

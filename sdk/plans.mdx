@@ -1,0 +1,268 @@
+---
+title: 'Plans'
+description: 'Create and manage usage plans for your users'
+---
+
+# Plans
+
+The Plans module allows you to create and manage usage plans that define rate limits and features for your users.
+
+## List Plans
+
+Get all plans for your account:
+
+```typescript
+import { Limitly } from '@limitly/limitly-js';
+
+const limitly = new Limitly({
+  apiKey: 'your_limitly_api_key'
+});
+
+// List all plans
+const plans = await limitly.plans.list();
+console.log('Plans:', plans.data);
+```
+
+## Create Plan
+
+Create a new usage plan:
+
+```typescript
+const plan = await limitly.plans.create({
+  name: 'Basic Plan',
+  description: 'Plan for basic users',
+  max_requests: 10000,
+  request_period: 'month',
+  features: ['api_access', 'basic_analytics']
+});
+
+console.log('Created Plan:', plan.data);
+```
+
+### Create Plan Parameters
+
+<ParamField body="name" type="string" required>
+  The name of the plan
+</ParamField>
+
+<ParamField body="description" type="string">
+  A description of the plan
+</ParamField>
+
+<ParamField body="max_requests" type="number" required>
+  Maximum number of requests allowed per period
+</ParamField>
+
+<ParamField body="request_period" type="string" required>
+  The period for the request limit (day, week, month, year)
+</ParamField>
+
+<ParamField body="features" type="array">
+  Array of features included in this plan
+</ParamField>
+
+<ParamField body="metadata" type="object">
+  Additional metadata for the plan
+</ParamField>
+
+## Get Plan
+
+Retrieve a specific plan by ID:
+
+```typescript
+const plan = await limitly.plans.get('plan_123');
+console.log('Plan:', plan.data);
+```
+
+## Update Plan
+
+Update an existing plan:
+
+```typescript
+const updatedPlan = await limitly.plans.update('plan_123', {
+  name: 'Updated Basic Plan',
+  max_requests: 15000,
+  features: ['api_access', 'basic_analytics', 'priority_support']
+});
+
+console.log('Updated Plan:', updatedPlan.data);
+```
+
+### Update Plan Parameters
+
+<ParamField body="name" type="string">
+  New name for the plan
+</ParamField>
+
+<ParamField body="description" type="string">
+  Updated description for the plan
+</ParamField>
+
+<ParamField body="max_requests" type="number">
+  Updated maximum number of requests
+</ParamField>
+
+<ParamField body="request_period" type="string">
+  Updated request period
+</ParamField>
+
+<ParamField body="features" type="array">
+  Updated array of features
+</ParamField>
+
+<ParamField body="metadata" type="object">
+  Updated metadata for the plan
+</ParamField>
+
+## Delete Plan
+
+Delete a plan (soft delete):
+
+```typescript
+const result = await limitly.plans.delete('plan_123');
+console.log('Delete result:', result.data?.message);
+```
+
+## Get Plan Usage
+
+Get usage statistics for a specific plan:
+
+```typescript
+const usage = await limitly.plans.getUsage('plan_123');
+console.log('Plan usage:', usage.data);
+```
+
+### Plan Usage Response
+
+<ParamField body="total_users" type="number">
+  Total number of users on this plan
+</ParamField>
+
+<ParamField body="total_requests" type="number">
+  Total requests made by users on this plan
+</ParamField>
+
+<ParamField body="average_usage" type="number">
+  Average usage per user on this plan
+</ParamField>
+
+<ParamField body="period" type="string">
+  The current period
+</ParamField>
+
+## Get Plan Users
+
+Get all users on a specific plan:
+
+```typescript
+const users = await limitly.plans.getUsers('plan_123');
+console.log('Plan users:', users.data);
+```
+
+## Complete Example
+
+```typescript
+import { Limitly } from '@limitly/limitly-js';
+
+const limitly = new Limitly({
+  apiKey: 'your_limitly_api_key'
+});
+
+async function managePlans() {
+  // Create a basic plan
+  const basicPlan = await limitly.plans.create({
+    name: 'Basic Plan',
+    description: 'Perfect for small applications',
+    max_requests: 10000,
+    request_period: 'month',
+    features: ['api_access', 'basic_analytics']
+  });
+  
+  console.log('Created Basic Plan:', basicPlan.data?.id);
+  
+  // Create a pro plan
+  const proPlan = await limitly.plans.create({
+    name: 'Pro Plan',
+    description: 'For growing applications',
+    max_requests: 100000,
+    request_period: 'month',
+    features: ['api_access', 'advanced_analytics', 'priority_support', 'webhooks']
+  });
+  
+  console.log('Created Pro Plan:', proPlan.data?.id);
+  
+  // Get usage statistics
+  const usage = await limitly.plans.getUsage(basicPlan.data?.id!);
+  console.log('Basic plan usage:', usage.data);
+  
+  // Get users on the plan
+  const users = await limitly.plans.getUsers(basicPlan.data?.id!);
+  console.log('Users on basic plan:', users.data);
+  
+  // Update the plan
+  await limitly.plans.update(basicPlan.data?.id!, {
+    max_requests: 15000,
+    features: ['api_access', 'basic_analytics', 'email_support']
+  });
+}
+```
+
+## Plan Object
+
+The plan object contains the following properties:
+
+<ParamField body="id" type="string">
+  Unique identifier for the plan
+</ParamField>
+
+<ParamField body="name" type="string">
+  The name of the plan
+</ParamField>
+
+<ParamField body="description" type="string">
+  The description of the plan
+</ParamField>
+
+<ParamField body="max_requests" type="number">
+  Maximum number of requests allowed per period
+</ParamField>
+
+<ParamField body="request_period" type="string">
+  The period for the request limit
+</ParamField>
+
+<ParamField body="features" type="array">
+  Array of features included in this plan
+</ParamField>
+
+<ParamField body="created_at" type="string">
+  When the plan was created (ISO 8601 format)
+</ParamField>
+
+<ParamField body="updated_at" type="string">
+  When the plan was last updated (ISO 8601 format)
+</ParamField>
+
+<ParamField body="metadata" type="object">
+  Additional metadata for the plan
+</ParamField>
+
+## Common Plan Features
+
+Here are some common features you might include in your plans:
+
+- `api_access` - Basic API access
+- `basic_analytics` - Basic usage analytics
+- `advanced_analytics` - Advanced analytics and reporting
+- `priority_support` - Priority customer support
+- `webhooks` - Webhook notifications
+- `email_support` - Email support
+- `phone_support` - Phone support
+- `custom_domains` - Custom domain support
+- `team_management` - Team and user management features
+
+## Next Steps
+
+- [Users](/sdk/users) - Manage user accounts and usage
+- [API Key Management](/sdk/api-keys) - Generate and manage API keys
+- [Request Validation](/sdk/validation) - Validate user requests 

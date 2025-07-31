@@ -1,97 +1,121 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+title: 'Welcome to Limitly'
+description: 'API Key management, plans, users and request validation for your SaaS'
 ---
 
-## Setting up
+<Hero
+  title="Limitly"
+  subtitle="Simple and powerful rate limiting for your SaaS"
+  image="/images/hero-light.png"
+  darkImage="/images/hero-dark.png"
+/>
 
-Get your documentation site up and running in minutes.
-
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
-
-## Make it yours
-
-Design a docs site that looks great and empowers your users.
-
-<Columns cols={2}>
+<CardGroup cols={2}>
   <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
+    title="Easy Integration"
+    icon="zap"
+    href="/quickstart"
   >
-    Edit your docs locally and preview them in real time.
+    Get started with Limitly in minutes. Simple SDK and REST API for seamless integration.
   </Card>
   <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
+    title="Flexible Plans"
+    icon="layers"
+    href="/sdk/plans"
   >
-    Customize the design and colors of your site to match your brand.
-  </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
+    Create custom plans with different request limits, periods, and features for your users.
   </Card>
   <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
+    title="Real-time Validation"
+    icon="shield-check"
+    href="/sdk/validation"
   >
-    Auto-generate API documentation from OpenAPI specifications.
-  </Card>
-</Columns>
-
-## Create beautiful pages
-
-Everything you need to create world-class documentation.
-
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
+    Validate requests in real-time with comprehensive usage tracking and analytics.
   </Card>
   <Card
-    title="Code samples"
+    title="API Key Management"
+    icon="key"
+    href="/sdk/api-keys"
+  >
+    Generate, manage, and track API keys with detailed usage statistics and history.
+  </Card>
+</CardGroup>
+
+## What is Limitly?
+
+Limitly is a comprehensive rate limiting solution designed specifically for SaaS applications. It provides:
+
+- **API Key Management**: Generate and manage API keys for your users
+- **Plan Management**: Create flexible plans with different limits and features
+- **User Management**: Track and manage user accounts and their usage
+- **Request Validation**: Real-time validation of API requests with detailed analytics
+- **Usage Analytics**: Comprehensive insights into API usage patterns
+
+## Key Features
+
+<CardGroup cols={1}>
+  <Card title="Simple SDK Integration">
+    ```typescript
+    import { Limitly } from '@limitly/limitly-js';
+    
+    const limitly = new Limitly({
+      apiKey: 'your_limitly_api_key'
+    });
+    
+    // Validate a request
+    const result = await limitly.validation.validate(
+      'user_api_key',
+      '/api/users',
+      'GET'
+    );
+    ```
+  </Card>
+</CardGroup>
+
+## Quick Start
+
+1. **Install the SDK**
+   ```bash
+   npm install @limitly/limitly-js
+   ```
+
+2. **Initialize the client**
+   ```typescript
+   import { Limitly } from '@limitly/limitly-js';
+   
+   const limitly = new Limitly({
+     apiKey: 'your_limitly_api_key'
+   });
+   ```
+
+3. **Validate requests**
+   ```typescript
+   const result = await limitly.validation.validate(
+     'user_api_key',
+     '/api/users',
+     'GET'
+   );
+   
+   if (result.success) {
+     // Request allowed
+   } else {
+     // Request denied
+   }
+   ```
+
+<CardGroup cols={2}>
+  <Card
+    title="View Documentation"
+    icon="book-open"
+    href="/quickstart"
+  >
+    Get started with our comprehensive guides and tutorials.
+  </Card>
+  <Card
+    title="API Reference"
     icon="code"
-    href="/essentials/code"
+    href="/api-reference/sdk"
   >
-    Add sample code to demonstrate how to use your product.
+    Explore the complete API reference and SDK documentation.
   </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
-
-## Need inspiration?
-
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+</CardGroup>

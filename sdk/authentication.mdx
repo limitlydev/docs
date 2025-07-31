@@ -1,0 +1,91 @@
+---
+title: 'Authentication'
+description: 'Learn how to authenticate with the Limitly API'
+---
+
+# Authentication
+
+Limitly uses API key-based authentication for all API requests.
+
+## API Key Authentication
+
+All requests to the Limitly API require authentication using your API key. The API key should be included in the request headers.
+
+### SDK Authentication
+
+When using the SDK, you provide your API key during initialization:
+
+```typescript
+import { Limitly } from '@limitly/limitly-js';
+
+const limitly = new Limitly({
+  apiKey: 'lk_1234567890abcdef'
+});
+```
+
+The SDK automatically includes your API key in all requests.
+
+### Direct API Authentication
+
+When making direct API calls, include your API key in the `Authorization` header:
+
+```bash
+curl -H "Authorization: Bearer lk_1234567890abcdef" \
+     https://api.limitly.com/v1/keys
+```
+
+## Getting Your API Key
+
+1. Log in to your [Limitly Dashboard](https://app.limitly.com)
+2. Navigate to the **API Keys** section
+3. Create a new API key or copy an existing one
+4. Use this key in your SDK configuration or API requests
+
+## API Key Format
+
+Limitly API keys follow this format:
+- **Prefix**: `lk_`
+- **Length**: 32 characters
+- **Example**: `lk_1234567890abcdef1234567890abcdef`
+
+## Security Best Practices
+
+<CardGroup cols={1}>
+  <Card title="Environment Variables">
+    Store your API key in environment variables, never in your source code:
+    
+    ```bash
+    # .env
+    LIMITLY_API_KEY=lk_1234567890abcdef1234567890abcdef
+    ```
+    
+    ```typescript
+    const limitly = new Limitly({
+      apiKey: process.env.LIMITLY_API_KEY!
+    });
+    ```
+  </Card>
+</CardGroup>
+
+<CardGroup cols={1}>
+  <Card title="Key Rotation">
+    Regularly rotate your API keys for enhanced security. You can regenerate keys from your dashboard without affecting your application.
+  </Card>
+</CardGroup>
+
+## Error Responses
+
+If authentication fails, you'll receive a `401 Unauthorized` response:
+
+```json
+{
+  "error": "Invalid API key",
+  "code": "INVALID_API_KEY"
+}
+```
+
+## Next Steps
+
+- [Request Validation](/sdk/validation) - Learn how to validate user requests
+- [API Key Management](/sdk/api-keys) - Manage API keys for your users
+- [Error Handling](/api-reference/sdk#error-handling) - Handle API errors properly 

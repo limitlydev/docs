@@ -1,0 +1,320 @@
+---
+title: 'API Key Management'
+description: 'Manage API keys for your users via the REST API'
+---
+
+# API Key Management
+
+Manage API keys for your users using the Limitly REST API.
+
+## List API Keys
+
+Get all API keys for your account:
+
+```bash
+curl -X GET \
+  -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
+  https://api.limitly.com/v1/keys
+```
+
+### Response
+
+```json
+{
+  "data": [
+    {
+      "id": "key_123",
+      "name": "Production API Key",
+      "user_id": "user_456",
+      "plan_id": "plan_789",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z",
+      "metadata": {
+        "environment": "production"
+      }
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 10,
+    "total": 1
+  }
+}
+```
+
+## Create API Key
+
+Create a new API key for a user:
+
+```bash
+curl -X POST \
+  -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "New API Key",
+    "user_id": "user_123",
+    "plan_id": "plan_456"
+  }' \
+  https://api.limitly.com/v1/keys
+```
+
+### Request Parameters
+
+<ParamField body="name" type="string" required>
+  A descriptive name for the API key
+</ParamField>
+
+<ParamField body="user_id" type="string" required>
+  The ID of the user who will use this API key
+</ParamField>
+
+<ParamField body="plan_id" type="string">
+  The ID of the plan to associate with this API key
+</ParamField>
+
+<ParamField body="metadata" type="object">
+  Additional metadata for the API key
+</ParamField>
+
+### Response
+
+```json
+{
+  "data": {
+    "id": "key_123",
+    "api_key": "lk_user_abcdef1234567890abcdef1234567890",
+    "name": "New API Key",
+    "user_id": "user_123",
+    "plan_id": "plan_456",
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z",
+    "metadata": {},
+    "limitInfo": {
+      "current_usage": 0,
+      "limit": 1000,
+      "remaining": 1000,
+      "reset_time": "2024-02-01T00:00:00Z"
+    }
+  }
+}
+```
+
+## Get API Key
+
+Retrieve a specific API key by ID:
+
+```bash
+curl -X GET \
+  -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
+  https://api.limitly.com/v1/keys/key_123
+```
+
+### Response
+
+```json
+{
+  "data": {
+    "id": "key_123",
+    "name": "Production API Key",
+    "user_id": "user_456",
+    "plan_id": "plan_789",
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z",
+    "metadata": {
+      "environment": "production"
+    }
+  }
+}
+```
+
+## Update API Key
+
+Update an existing API key:
+
+```bash
+curl -X PUT \
+  -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Updated API Key Name",
+    "metadata": {
+      "environment": "production"
+    }
+  }' \
+  https://api.limitly.com/v1/keys/key_123
+```
+
+### Request Parameters
+
+<ParamField body="name" type="string">
+  New name for the API key
+</ParamField>
+
+<ParamField body="metadata" type="object">
+  Updated metadata for the API key
+</ParamField>
+
+## Delete API Key
+
+Delete an API key (soft delete):
+
+```bash
+curl -X DELETE \
+  -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
+  https://api.limitly.com/v1/keys/key_123
+```
+
+### Response
+
+```json
+{
+  "data": {
+    "message": "API key deleted successfully"
+  }
+}
+```
+
+## Regenerate API Key
+
+Regenerate an existing API key (creates a new key value):
+
+```bash
+curl -X POST \
+  -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
+  https://api.limitly.com/v1/keys/key_123/regenerate
+```
+
+### Response
+
+```json
+{
+  "data": {
+    "id": "key_123",
+    "api_key": "lk_user_newabcdef1234567890abcdef1234567890",
+    "name": "Production API Key",
+    "user_id": "user_456",
+    "plan_id": "plan_789",
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z",
+    "metadata": {
+      "environment": "production"
+    }
+  }
+}
+```
+
+## Get API Key Usage
+
+Get usage statistics for a specific API key:
+
+```bash
+curl -X GET \
+  -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
+  https://api.limitly.com/v1/keys/key_123/usage
+```
+
+### Response
+
+```json
+{
+  "data": {
+    "current_usage": 45,
+    "limit": 1000,
+    "remaining": 955,
+    "reset_time": "2024-02-01T00:00:00Z",
+    "period": "month"
+  }
+}
+```
+
+## Get API Key Requests
+
+Get detailed request history for an API key:
+
+```bash
+curl -X GET \
+  -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
+  https://api.limitly.com/v1/keys/key_123/requests
+```
+
+### Response
+
+```json
+{
+  "data": {
+    "requests": [
+      {
+        "timestamp": "2024-01-01T12:00:00Z",
+        "endpoint": "/api/users",
+        "method": "GET",
+        "status": "allowed",
+        "ip_address": "192.168.1.1"
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "limit": 10,
+      "total": 1
+    }
+  }
+}
+```
+
+## Error Responses
+
+### Invalid API Key
+
+```json
+{
+  "error": "Invalid API key",
+  "code": "INVALID_API_KEY"
+}
+```
+
+### API Key Not Found
+
+```json
+{
+  "error": "API key not found",
+  "code": "API_KEY_NOT_FOUND"
+}
+```
+
+### Validation Error
+
+```json
+{
+  "error": "Validation failed",
+  "code": "VALIDATION_ERROR",
+  "details": {
+    "field": "name",
+    "message": "Name is required"
+  }
+}
+```
+
+## Pagination
+
+List endpoints support pagination with the following query parameters:
+
+<ParamField body="page" type="number">
+  Page number (default: 1)
+</ParamField>
+
+<ParamField body="limit" type="number">
+  Number of items per page (default: 10, max: 100)
+</ParamField>
+
+### Example
+
+```bash
+curl -X GET \
+  -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
+  "https://api.limitly.com/v1/keys?page=2&limit=20"
+```
+
+## Next Steps
+
+- [Plans](/api/plans) - Create and manage usage plans
+- [Users](/api/users) - Manage user accounts and usage
+- [Request Validation](/api/validation) - Validate user requests 

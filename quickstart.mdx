@@ -1,80 +1,295 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: 'Quickstart'
+description: 'Get started with Limitly in minutes'
 ---
 
-## Get started in three steps
+# Quickstart
 
-Get your documentation site running locally and make your first customization.
+Get started with Limitly in just a few minutes. This guide will walk you through setting up rate limiting for your application.
 
-### Step 1: Set up your local environment
+## Prerequisites
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
+- Node.js 16+ or Python 3.8+
+- A Limitly account (sign up at [app.limitly.com](https://app.limitly.com))
+- Your Limitly API key
+
+## Step 1: Install the SDK
+
+### Node.js
+
+```bash
+npm install @limitly/limitly-js
+```
+
+### Python
+
+```bash
+pip install limitly-python
+```
+
+## Step 2: Initialize the SDK
+
+### Node.js
+
+```typescript
+import { Limitly } from '@limitly/limitly-js';
+
+const limitly = new Limitly({
+  apiKey: 'lk_1234567890abcdef1234567890abcdef'
+});
+```
+
+### Python
+
+```python
+from limitly import Limitly
+
+limitly = Limitly(
+    api_key="lk_1234567890abcdef1234567890abcdef"
+)
+```
+
+## Step 3: Create a Plan
+
+First, create a usage plan for your users:
+
+### Node.js
+
+```typescript
+const plan = await limitly.plans.create({
+  name: 'Basic Plan',
+  description: 'Plan for basic users',
+  max_requests: 10000,
+  request_period: 'month',
+  features: ['api_access', 'basic_analytics']
+});
+
+console.log('Created plan:', plan.data?.id);
+```
+
+### Python
+
+```python
+plan = limitly.plans.create({
+    "name": "Basic Plan",
+    "description": "Plan for basic users",
+    "max_requests": 10000,
+    "request_period": "month",
+    "features": ["api_access", "basic_analytics"]
+})
+
+print(f"Created plan: {plan['data']['id']}")
+```
+
+## Step 4: Create a User
+
+Create a user account:
+
+### Node.js
+
+```typescript
+const user = await limitly.users.create({
+  name: 'John Doe',
+  email: 'john@example.com',
+  plan_id: plan.data?.id
+});
+
+console.log('Created user:', user.data?.user_id);
+```
+
+### Python
+
+```python
+user = limitly.users.create({
+    "name": "John Doe",
+    "email": "john@example.com",
+    "plan_id": plan["data"]["id"]
+})
+
+print(f"Created user: {user['data']['user_id']}")
+```
+
+## Step 5: Generate an API Key
+
+Create an API key for the user:
+
+### Node.js
+
+```typescript
+const apiKey = await limitly.apiKeys.create({
+  name: 'Production API Key',
+  user_id: user.data?.user_id,
+  plan_id: plan.data?.id
+});
+
+console.log('API Key:', apiKey.data?.api_key);
+```
+
+### Python
+
+```python
+api_key = limitly.api_keys.create({
+    "name": "Production API Key",
+    "user_id": user["data"]["user_id"],
+    "plan_id": plan["data"]["id"]
+})
+
+print(f"API Key: {api_key['data']['api_key']}")
+```
+
+## Step 6: Validate Requests
+
+Now you can validate requests in your application:
+
+### Node.js
+
+```typescript
+// In your API middleware
+app.use(async (req, res, next) => {
+  const userApiKey = req.headers['x-api-key'];
+  
+  if (!userApiKey) {
+    return res.status(401).json({ error: 'API key required' });
+  }
+  
+  const result = await limitly.validation.validate(
+    userApiKey,
+    req.path,
+    req.method
+  );
+  
+  if (!result.success) {
+    return res.status(429).json({ 
+      error: result.error,
+      details: result.details 
+    });
+  }
+  
+  // Add usage info to response headers
+  res.set('X-RateLimit-Limit', result.details?.limit?.toString());
+  res.set('X-RateLimit-Remaining', result.details?.remaining?.toString());
+  res.set('X-RateLimit-Reset', result.details?.reset_time);
+  
+  next();
+});
+```
+
+### Python (Flask)
+
+```python
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
+
+@app.before_request
+def validate_request():
+    user_api_key = request.headers.get('X-API-Key')
     
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
+    if not user_api_key:
+        return jsonify({"error": "API key required"}), 401
     
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
-
-### Step 2: Deploy your changes
-
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
+    result = limitly.validation.validate(
+        user_api_key,
+        request.path,
+        request.method
+    )
     
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+    if not result["success"]:
+        return jsonify({
+            "error": result["error"],
+            "details": result["details"]
+        }), 429
+    
+    # Add usage info to response headers
+    response = make_response()
+    response.headers['X-RateLimit-Limit'] = str(result["details"]["limit"])
+    response.headers['X-RateLimit-Remaining'] = str(result["details"]["remaining"])
+    response.headers['X-RateLimit-Reset'] = result["details"]["reset_time"]
+    
+    return response
+```
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+## Step 7: Test Your Integration
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+Test your rate limiting with a simple request:
 
-### Step 3: Go live
+```bash
+curl -H "X-API-Key: YOUR_USER_API_KEY" \
+     http://localhost:3000/api/test
+```
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+You should see the rate limit headers in the response:
 
-## Next steps
+```
+X-RateLimit-Limit: 10000
+X-RateLimit-Remaining: 9999
+X-RateLimit-Reset: 2024-02-01T00:00:00Z
+```
 
-Now that you have your docs running, explore these key features:
+## Complete Example
 
-<CardGroup cols={2}>
+Here's a complete Express.js example:
 
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
+```typescript
+import express from 'express';
+import { Limitly } from '@limitly/limitly-js';
 
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
+const app = express();
+const limitly = new Limitly({
+  apiKey: process.env.LIMITLY_API_KEY!
+});
 
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
+// Rate limiting middleware
+app.use(async (req, res, next) => {
+  const userApiKey = req.headers['x-api-key'] as string;
+  
+  if (!userApiKey) {
+    return res.status(401).json({ error: 'API key required' });
+  }
+  
+  try {
+    const result = await limitly.validation.validate(
+      userApiKey,
+      req.path,
+      req.method
+    );
+    
+    if (!result.success) {
+      return res.status(429).json({ 
+        error: result.error,
+        details: result.details 
+      });
+    }
+    
+    // Add usage info to response headers
+    res.set('X-RateLimit-Limit', result.details?.limit?.toString());
+    res.set('X-RateLimit-Remaining', result.details?.remaining?.toString());
+    res.set('X-RateLimit-Reset', result.details?.reset_time);
+    
+    next();
+  } catch (error) {
+    console.error('Validation error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
+// Your API routes
+app.get('/api/users', (req, res) => {
+  res.json({ users: [] });
+});
 
-</CardGroup>
+app.post('/api/users', (req, res) => {
+  res.json({ message: 'User created' });
+});
 
-<Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
-</Note>
+app.listen(3000, () => {
+  console.log('Server running on port 3000');
+});
+```
+
+## Next Steps
+
+- [SDK Documentation](/sdk/installation) - Learn more about the SDK
+- [API Reference](/api-reference/sdk) - Complete API reference
+- [Authentication](/sdk/authentication) - Learn about authentication
+- [Request Validation](/sdk/validation) - Understand request validation

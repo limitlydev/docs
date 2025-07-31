@@ -1,0 +1,215 @@
+---
+title: 'Request Validation'
+description: 'Validate user requests with real-time rate limiting'
+---
+
+# Request Validation
+
+The validation module is the core feature of Limitly, allowing you to validate user requests in real-time.
+
+## Basic Validation
+
+Validate a user's request using their API key:
+
+```typescript
+import { Limitly } from '@limitly/limitly-js';
+
+const limitly = new Limitly({
+  apiKey: 'your_limitly_api_key'
+});
+
+// Validate a request
+const result = await limitly.validation.validate(
+  'user_api_key',
+  '/api/users',
+  'GET'
+);
+
+if (result.success) {
+  console.log('Request allowed');
+  console.log('Current usage:', result.details?.current_usage);
+  console.log('Limit:', result.details?.limit);
+} else {
+  console.log('Request denied:', result.error);
+}
+```
+
+## Validation Response
+
+The validation response includes detailed information about the request:
+
+<ParamField body="success" type="boolean">
+  Whether the request was allowed or denied
+</ParamField>
+
+<ParamField body="error" type="string">
+  Error message if the request was denied
+</ParamField>
+
+<ParamField body="details" type="object">
+  Additional details about the request and usage
+</ParamField>
+
+<ParamField body="details.current_usage" type="number">
+  Current usage count for the period
+</ParamField>
+
+<ParamField body="details.limit" type="number">
+  The limit for the current period
+</ParamField>
+
+<ParamField body="details.remaining" type="number">
+  Remaining requests for the period
+</ParamField>
+
+<ParamField body="details.reset_time" type="string">
+  When the usage will reset (ISO 8601 format)
+</ParamField>
+
+## Example Response
+
+```json
+{
+  "success": true,
+  "details": {
+    "current_usage": 45,
+    "limit": 1000,
+    "remaining": 955,
+    "reset_time": "2024-01-01T00:00:00Z"
+  }
+}
+```
+
+## Error Responses
+
+When a request is denied, you'll receive an error response:
+
+```json
+{
+  "success": false,
+  "error": "Rate limit exceeded",
+  "details": {
+    "current_usage": 1000,
+    "limit": 1000,
+    "remaining": 0,
+    "reset_time": "2024-01-01T00:00:00Z"
+  }
+}
+```
+
+## Advanced Validation
+
+You can also validate requests with additional metadata:
+
+```typescript
+const result = await limitly.validation.validateRequest({
+  api_key: 'user_api_key',
+  endpoint: '/api/users',
+  method: 'POST',
+  metadata: {
+    user_id: '123',
+    ip_address: '192.168.1.1'
+  }
+});
+```
+
+## Integration Examples
+
+### Express.js Middleware
+
+```typescript
+import express from 'express';
+import { Limitly } from '@limitly/limitly-js';
+
+const app = express();
+const limitly = new Limitly({
+  apiKey: process.env.LIMITLY_API_KEY!
+});
+
+// Rate limiting middleware
+app.use(async (req, res, next) => {
+  const userApiKey = req.headers['x-api-key'] as string;
+  
+  if (!userApiKey) {
+    return res.status(401).json({ error: 'API key required' });
+  }
+  
+  const result = await limitly.validation.validate(
+    userApiKey,
+    req.path,
+    req.method
+  );
+  
+  if (!result.success) {
+    return res.status(429).json({ 
+      error: result.error,
+      details: result.details 
+    });
+  }
+  
+  // Add usage info to response headers
+  res.set('X-RateLimit-Limit', result.details?.limit?.toString());
+  res.set('X-RateLimit-Remaining', result.details?.remaining?.toString());
+  res.set('X-RateLimit-Reset', result.details?.reset_time);
+  
+  next();
+});
+```
+
+### Next.js API Route
+
+```typescript
+import { NextApiRequest, NextApiResponse } from 'next';
+import { Limitly } from '@limitly/limitly-js';
+
+const limitly = new Limitly({
+  apiKey: process.env.LIMITLY_API_KEY!
+});
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  const userApiKey = req.headers['x-api-key'] as string;
+  
+  if (!userApiKey) {
+    return res.status(401).json({ error: 'API key required' });
+  }
+  
+  const result = await limitly.validation.validate(
+    userApiKey,
+    req.url!,
+    req.method!
+  );
+  
+  if (!result.success) {
+    return res.status(429).json({ 
+      error: result.error,
+      details: result.details 
+    });
+  }
+  
+  // Your API logic here
+  res.json({ message: 'Success' });
+}
+```
+
+## Best Practices
+
+<CardGroup cols={1}>
+  <Card title="Cache Validation Results">
+    For high-traffic applications, consider caching validation results for a short period to reduce API calls.
+  </Card>
+</CardGroup>
+
+<CardGroup cols={1}>
+  <Card title="Handle Errors Gracefully">
+    Always handle validation errors gracefully and provide meaningful error messages to your users.
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+- [API Key Management](/sdk/api-keys) - Learn how to manage API keys
+- [Plans](/sdk/plans) - Create and manage usage plans
+- [Users](/sdk/users) - Manage user accounts and usage 
