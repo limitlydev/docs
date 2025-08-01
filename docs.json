@@ -35,11 +35,12 @@
           {
             "group": "REST API",
             "pages": [
-              "api/authentication",
-              "api/validation",
-              "api/api-keys",
-              "api/plans",
-              "api/users"
+              "rest-api/reference",
+              "rest-api/authentication",
+              "rest-api/validation",
+              "rest-api/api-keys",
+              "rest-api/plans",
+              "rest-api/users"
             ]
           }
         ]
@@ -75,7 +76,6 @@
      "vscode"
    ]
   },
-  "openapi": "api-reference/openapi.json",
   "footer": {
     "socials": {
       "x": "https://x.com/limitly",
