@@ -1,44 +1,178 @@
-# Mintlify Starter Kit
+# Limitly Documentation
 
-Use the starter kit to get your docs deployed and ready to customize.
+Documentación completa de la API de Limitly con soporte para OpenAPI 3.0.3.
 
-Click the green **Use this template** button at the top of this repo to copy the Mintlify starter kit. The starter kit contains examples with
+## Características
 
-- Guide pages
-- Navigation
-- Customizations
-- API reference pages
-- Use of popular components
+- **Documentación Interactiva**: Prueba los endpoints directamente desde el navegador
+- **Especificación OpenAPI**: Compatible con herramientas estándar de la industria
+- **Generación de Código**: Genera clientes en múltiples lenguajes de programación
+- **Validación de Esquemas**: Validación automática de requests/responses
+- **Tipos Seguros**: Definiciones de tipos completas para todas las estructuras de datos
 
-**[Follow the full quickstart guide](https://starter.mintlify.com/quickstart)**
-
-## Development
-
-Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview your documentation changes locally. To install, use the following command:
+## Estructura del Proyecto
 
 ```
-npm i -g mint
+docs/
+├── api-reference/
+│   └── openapi.json        # Especificación OpenAPI completa
+├── sdk/                    # Documentación del SDK
+├── essentials/             # Guías esenciales
+├── api/                    # Documentación detallada de la API
+├── ai-tools/              # Herramientas de IA
+├── docs.json              # Configuración de Mintlify
+└── README.md              # Este archivo
 ```
 
-Run the following command at the root of your documentation, where your `docs.json` is located:
+## Configuración OpenAPI
 
+La documentación está configurada para usar OpenAPI 3.0.3 con las siguientes características:
+
+### Endpoints Documentados
+
+- **Gestión de Usuarios**: CRUD completo para usuarios
+- **Gestión de API Keys**: Crear, leer, actualizar y eliminar claves API
+- **Gestión de Planes**: Administrar planes de rate limiting
+- **Validación**: Validar requests contra límites de uso
+
+### Esquemas de Datos
+
+- **User**: Información de usuarios
+- **ApiKey**: Claves API y su estado
+- **Plan**: Planes de rate limiting
+- **Usage**: Estadísticas de uso
+- **Request**: Historial de requests
+- **Validation**: Requests de validación
+
+### Autenticación
+
+Todas las requests requieren autenticación mediante Bearer token:
+
+```bash
+curl -H "Authorization: Bearer YOUR_API_KEY" \
+  https://api.limitly.com/v1/users
 ```
-mint dev
+
+## Herramientas Compatibles
+
+### Generación de Código
+
+- **OpenAPI Generator**: `openapi-generator-cli generate`
+- **Swagger Codegen**: `swagger-codegen generate`
+- **NSwag**: Para aplicaciones .NET
+
+### Validación
+
+- **Ajv**: Validación de JSON Schema
+- **OpenAPI Validator**: Validación de especificaciones
+- **Postman**: Importación directa de la especificación
+
+### Documentación
+
+- **Mintlify**: Hosting y visualización
+- **Swagger UI**: Interfaz interactiva
+- **Redoc**: Documentación alternativa
+
+## Desarrollo
+
+### Agregar Nuevos Endpoints
+
+1. Actualiza `api-reference/openapi.json` con el nuevo endpoint
+2. Crea documentación MDX en `api-reference/endpoints/`
+3. Actualiza la navegación en `docs.json`
+
+### Ejemplo de Endpoint
+
+```json
+{
+  "/v1/new-endpoint": {
+    "get": {
+      "summary": "Get new data",
+      "description": "Retrieve new data from the API",
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Success",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewData"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
 ```
 
-View your local preview at `http://localhost:3000`.
+### Agregar Nuevos Esquemas
 
-## Publishing changes
+```json
+{
+  "components": {
+    "schemas": {
+      "NewData": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the data"
+          }
+        },
+        "required": ["id", "name"]
+      }
+    }
+  }
+}
+```
 
-Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) to propagate changes from your repo to your deployment. Changes are deployed to production automatically after pushing to the default branch.
+## Despliegue
 
-## Need help?
+### Mintlify
 
-### Troubleshooting
+La documentación está configurada para desplegarse en Mintlify:
 
-- If your dev environment isn't running: Run `mint update` to ensure you have the most recent version of the CLI.
-- If a page loads as a 404: Make sure you are running in a folder with a valid `docs.json`.
+1. Conecta tu repositorio a Mintlify
+2. La configuración se lee automáticamente desde `docs.json`
+3. La especificación OpenAPI se carga desde `api-reference/openapi.json`
 
-### Resources
-- [Mintlify documentation](https://mintlify.com/docs)
-- [Mintlify community](https://mintlify.com/community)
+### Otros Proveedores
+
+- **GitHub Pages**: Despliega la documentación estática
+- **Netlify**: Hosting gratuito con CI/CD
+- **Vercel**: Despliegue automático desde Git
+
+## Contribución
+
+1. Fork el repositorio
+2. Crea una rama para tu feature
+3. Actualiza la documentación y especificación OpenAPI
+4. Envía un pull request
+
+## Recursos
+
+- [OpenAPI Specification](https://spec.openapis.org/oas/v3.1.0)
+- [Mintlify Documentation](https://mintlify.com/docs)
+- [Swagger UI](https://swagger.io/tools/swagger-ui/)
+- [OpenAPI Generator](https://openapi-generator.tech/)
+
+## Soporte
+
+- **Email**: hi@limitly.com
+- **GitHub**: Reporta issues en el repositorio
+- **Documentación**: Consulta la documentación completa
