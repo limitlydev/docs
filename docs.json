@@ -48,8 +48,8 @@
     ]
   },
   "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "light": "/logo/logo_light.png",
+    "dark": "/logo/logo_dark.png"
   },
   "navbar": {
     "links": [
