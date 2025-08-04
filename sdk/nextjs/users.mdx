@@ -3,8 +3,6 @@ title: 'Next.js SDK Users'
 description: 'Manage user accounts using the Limitly Next.js SDK'
 ---
 
-# Users
-
 The Limitly Next.js SDK provides comprehensive user management capabilities for your application.
 
 ## Creating Users
@@ -20,15 +18,11 @@ const limitly = new Limitly({
 
 // Create a new user
 const newUser = await limitly.users.create({
-  email: 'user@example.com',
   name: 'John Doe',
-  metadata: {
-    company: 'Example Corp',
-    role: 'developer'
-  }
+  email: 'user@example.com'
 });
 
-console.log('New user created:', newUser.id);
+console.log('New user created:', newUser.data?.user_id);
 ```
 
 ## Listing Users
@@ -37,10 +31,7 @@ Retrieve all users in your application:
 
 ```typescript
 // Get all users
-const users = await limitly.users.list({
-  limit: 10,
-  offset: 0
-});
+const users = await limitly.users.list();
 
 console.log('Users:', users.data);
 ```
@@ -51,15 +42,14 @@ Get detailed information about a specific user:
 
 ```typescript
 // Get user details
-const user = await limitly.users.get('user_123');
+const user = await limitly.users.get(123);
 
 console.log('User details:', {
-  id: user.id,
-  email: user.email,
-  name: user.name,
-  status: user.status,
-  createdAt: user.createdAt,
-  metadata: user.metadata
+  user_id: user.data?.user_id,
+  name: user.data?.name,
+  email: user.data?.email,
+  is_disabled: user.data?.is_disabled,
+  created_at: user.data?.created_at
 });
 ```
 
@@ -69,16 +59,12 @@ Update user properties:
 
 ```typescript
 // Update a user
-const updatedUser = await limitly.users.update('user_123', {
+const updatedUser = await limitly.users.update(123, {
   name: 'John Smith',
-  metadata: {
-    company: 'Updated Corp',
-    role: 'senior_developer',
-    updatedAt: new Date().toISOString()
-  }
+  email: 'john.smith@example.com'
 });
 
-console.log('Updated user:', updatedUser);
+console.log('Updated user:', updatedUser.data);
 ```
 
 ## Deleting Users
@@ -87,7 +73,7 @@ Delete user accounts when they're no longer needed:
 
 ```typescript
 // Delete a user
-await limitly.users.delete('user_123');
+await limitly.users.delete(123);
 
 console.log('User deleted successfully');
 ```
@@ -98,17 +84,15 @@ Get usage statistics for a user:
 
 ```typescript
 // Get user usage
-const usage = await limitly.users.getUsage('user_123', {
-  startDate: '2024-01-01',
-  endDate: '2024-01-31'
-});
+const usage = await limitly.users.getUsage(123);
 
 console.log('User usage:', {
-  totalRequests: usage.totalRequests,
-  successfulRequests: usage.successfulRequests,
-  failedRequests: usage.failedRequests,
-  averageResponseTime: usage.averageResponseTime,
-  totalApiKeys: usage.totalApiKeys
+  type: usage.data?.type,
+  current_usage: usage.data?.current_usage,
+  limit: usage.data?.limit,
+  percentage_used: usage.data?.percentage_used,
+  user_name: usage.data?.user_name,
+  plan_name: usage.data?.plan_name
 });
 ```
 
@@ -118,10 +102,7 @@ Get all API keys associated with a user:
 
 ```typescript
 // Get user API keys
-const apiKeys = await limitly.users.getApiKeys('user_123', {
-  limit: 10,
-  offset: 0
-});
+const apiKeys = await limitly.users.getApiKeys(123);
 
 console.log('User API keys:', apiKeys.data);
 ```
@@ -143,14 +124,13 @@ export async function POST(request: Request) {
     const body = await request.json();
     
     const newUser = await limitly.users.create({
-      email: body.email,
       name: body.name,
-      metadata: body.metadata
+      email: body.email
     });
 
     return Response.json({
       success: true,
-      user: newUser
+      user: newUser.data
     });
   } catch (error) {
     return Response.json({
@@ -162,21 +142,12 @@ export async function POST(request: Request) {
 
 export async function GET(request: Request) {
   try {
-    const { searchParams } = new URL(request.url);
-    
-    const users = await limitly.users.list({
-      limit: parseInt(searchParams.get('limit') || '10'),
-      offset: parseInt(searchParams.get('offset') || '0')
-    });
+    const users = await limitly.users.list();
 
     return Response.json({
       success: true,
       users: users.data,
-      pagination: {
-        total: users.total,
-        limit: users.limit,
-        offset: users.offset
-      }
+      count: users.count
     });
   } catch (error) {
     return Response.json({
@@ -193,18 +164,13 @@ Manage user account status:
 
 ```typescript
 // Activate a user
-await limitly.users.update('user_123', {
-  status: 'active'
+await limitly.users.update(123, {
+  is_disabled: false
 });
 
 // Suspend a user
-await limitly.users.update('user_123', {
-  status: 'suspended'
-});
-
-// Deactivate a user
-await limitly.users.update('user_123', {
-  status: 'inactive'
+await limitly.users.update(123, {
+  is_disabled: true
 });
 ```
 
@@ -218,12 +184,7 @@ const users = await limitly.users.list({
   email: 'user@example.com'
 });
 
-// Search users by metadata
-const users = await limitly.users.list({
-  metadata: {
-    company: 'Example Corp'
-  }
-});
+console.log('Users found:', users.data);
 ```
 
 ## Error Handling
@@ -231,13 +192,19 @@ const users = await limitly.users.list({
 Handle user management errors:
 
 ```typescript
+import { Limitly } from '@limitly/limitly-nextjs';
+
+const limitly = new Limitly({
+  apiKey: process.env.LIMITLY_API_KEY!
+});
+
 try {
   const user = await limitly.users.create({
-    email: 'user@example.com',
-    name: 'John Doe'
+    name: 'John Doe',
+    email: 'user@example.com'
   });
   
-  console.log('User created:', user.id);
+  console.log('User created:', user.data?.user_id);
 } catch (error) {
   if (error.message.includes('Email already exists')) {
     console.error('User with this email already exists');
@@ -249,34 +216,18 @@ try {
 }
 ```
 
-## User Types
+## User Properties
 
-The SDK supports different types of users:
+The SDK supports the following user properties:
 
-- **Regular Users**: Standard user accounts
-- **Admin Users**: Administrative accounts with extended privileges
-- **Service Users**: System accounts for automated processes
-- **Trial Users**: Limited-time accounts for testing
-
-## User Metadata
-
-Store custom data with user accounts:
-
-```typescript
-const user = await limitly.users.create({
-  email: 'user@example.com',
-  name: 'John Doe',
-  metadata: {
-    company: 'Example Corp',
-    department: 'Engineering',
-    role: 'developer',
-    preferences: {
-      notifications: true,
-      theme: 'dark'
-    }
-  }
-});
-```
+- **user_id**: Unique identifier for the user
+- **name**: User's display name
+- **email**: User's email address (optional)
+- **is_disabled**: Whether the user account is disabled
+- **created_at**: Timestamp when the user was created
+- **updated_at**: Timestamp when the user was last updated
+- **custom_start**: Custom start date for usage tracking (optional)
+- **plan**: Associated plan information (optional)
 
 ## Next Steps
 

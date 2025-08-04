@@ -3,17 +3,15 @@ title: 'Authentication'
 description: 'Learn how to authenticate with the Limitly API'
 ---
 
-# Authentication
+The Limitly SDK uses API key authentication to interact with the Limitly API.
 
-Limitly uses API key-based authentication for all API requests.
+## API Key Setup
 
-## API Key Authentication
+To use the SDK, you need a Limitly API key. You can get one from your [Limitly Dashboard](https://app.limitly.com).
 
-All requests to the Limitly API require authentication using your API key. The API key should be included in the request headers.
+## Basic Authentication
 
-### SDK Authentication
-
-When using the SDK, you provide your API key during initialization:
+Initialize the SDK with your API key:
 
 ```typescript
 import { Limitly } from '@limitly/limitly-js';
@@ -23,69 +21,92 @@ const limitly = new Limitly({
 });
 ```
 
-The SDK automatically includes your API key in all requests.
+## Environment Variables
 
-### Direct API Authentication
-
-When making direct API calls, include your API key in the `Authorization` header:
+For security, store your API key in environment variables:
 
 ```bash
-curl -H "Authorization: Bearer lk_1234567890abcdef" \
-     https://api.limitly.dev/v1/keys
+# .env.local
+LIMITLY_API_KEY=lk_1234567890abcdef
 ```
 
-## Getting Your API Key
+Then use it in your application:
 
-1. Log in to your [Limitly Dashboard](https://app.limitly.dev)
-2. Navigate to the **API Keys** section
-3. Create a new API key or copy an existing one
-4. Use this key in your SDK configuration or API requests
+```typescript
+import { Limitly } from '@limitly/limitly-js';
 
-## API Key Format
+const limitly = new Limitly({
+  apiKey: process.env.LIMITLY_API_KEY!
+});
+```
 
-Limitly API keys follow this format:
-- **Prefix**: `lk_`
-- **Length**: 32 characters
-- **Example**: `lk_1234567890abcdef1234567890abcdef`
+## Express.js Example
 
-## Security Best Practices
+Here's how to use authentication in an Express.js application:
 
-<CardGroup cols={1}>
-  <Card title="Environment Variables">
-    Store your API key in environment variables, never in your source code:
-    
-    ```bash
-    # .env
-    LIMITLY_API_KEY=lk_1234567890abcdef1234567890abcdef
-    ```
-    
-    ```typescript
-    const limitly = new Limitly({
-      apiKey: process.env.LIMITLY_API_KEY!
-    });
-    ```
-  </Card>
-</CardGroup>
+```typescript
+import express from 'express';
+import { Limitly } from '@limitly/limitly-js';
 
-<CardGroup cols={1}>
-  <Card title="Key Rotation">
-    Regularly rotate your API keys for enhanced security. You can regenerate keys from your dashboard without affecting your application.
-  </Card>
-</CardGroup>
+const app = express();
+const limitly = new Limitly({
+  apiKey: process.env.LIMITLY_API_KEY!
+});
 
-## Error Responses
+app.use(async (req, res, next) => {
+  const apiKey = req.headers['x-api-key'] as string;
+  
+  if (!apiKey) {
+    return res.status(401).json({ error: 'API Key required' });
+  }
 
-If authentication fails, you'll receive a `401 Unauthorized` response:
+  const result = await limitly.validation.validate(
+    apiKey,
+    req.path,
+    req.method
+  );
 
-```json
-{
-  "error": "Invalid API key",
-  "code": "INVALID_API_KEY"
+  if (!result.success) {
+    return res.status(429).json({ error: 'Rate limit exceeded' });
+  }
+
+  next();
+});
+
+app.get('/api/users', (req, res) => {
+  res.json({ message: 'Users retrieved successfully' });
+});
+```
+
+## Error Handling
+
+The SDK provides comprehensive error handling:
+
+```typescript
+import { Limitly } from '@limitly/limitly-js';
+
+const limitly = new Limitly({
+  apiKey: process.env.LIMITLY_API_KEY!
+});
+
+try {
+  const result = await limitly.validation.validate(
+    'user_api_key',
+    '/api/users',
+    'GET'
+  );
+  
+  if (result.success) {
+    console.log('Request allowed');
+  } else {
+    console.log('Request denied:', result.error);
+  }
+} catch (error) {
+  console.error('Authentication error:', error);
 }
 ```
 
 ## Next Steps
 
-- [Request Validation](/sdk/validation) - Learn how to validate user requests
-- [API Key Management](/sdk/api-keys) - Manage API keys for your users
-- [Error Handling](/api-reference/sdk#error-handling) - Handle API errors properly 
+- [Request Validation](/sdk/validation) - Validate user requests
+- [API Key Management](/sdk/api-keys) - Manage API keys for your users 
