@@ -23,20 +23,14 @@ curl -X GET \
     {
       "id": "key_123",
       "name": "Production API Key",
-      "user_id": "user_456",
+      "user_id": 456,
       "plan_id": "plan_789",
+      "status": "active",
       "created_at": "2024-01-01T00:00:00Z",
-      "updated_at": "2024-01-01T00:00:00Z",
-      "metadata": {
-        "environment": "production"
-      }
+      "updated_at": "2024-01-01T00:00:00Z"
     }
   ],
-  "pagination": {
-    "page": 1,
-    "limit": 10,
-    "total": 1
-  }
+  "count": 1
 }
 ```
 
@@ -50,8 +44,9 @@ curl -X POST \
   -H "Content-Type: application/json" \
   -d '{
     "name": "New API Key",
-    "user_id": "user_123",
-    "plan_id": "plan_456"
+    "user_id": 123,
+    "plan_id": "plan_456",
+    "status": "active"
   }' \
   https://api.limitly.dev/v1/keys
 ```
@@ -62,7 +57,7 @@ curl -X POST \
   A descriptive name for the API key
 </ParamField>
 
-<ParamField body="user_id" type="string" required>
+<ParamField body="user_id" type="number" required>
   The ID of the user who will use this API key
 </ParamField>
 
@@ -70,8 +65,8 @@ curl -X POST \
   The ID of the plan to associate with this API key
 </ParamField>
 
-<ParamField body="metadata" type="object">
-  Additional metadata for the API key
+<ParamField body="status" type="string">
+  The status of the API key (active, inactive)
 </ParamField>
 
 ### Response
@@ -82,17 +77,11 @@ curl -X POST \
     "id": "key_123",
     "api_key": "lk_user_abcdef1234567890abcdef1234567890",
     "name": "New API Key",
-    "user_id": "user_123",
+    "user_id": 123,
     "plan_id": "plan_456",
+    "status": "active",
     "created_at": "2024-01-01T00:00:00Z",
-    "updated_at": "2024-01-01T00:00:00Z",
-    "metadata": {},
-    "limitInfo": {
-      "current_usage": 0,
-      "limit": 1000,
-      "remaining": 1000,
-      "reset_time": "2024-02-01T00:00:00Z"
-    }
+    "updated_at": "2024-01-01T00:00:00Z"
   }
 }
 ```
@@ -114,13 +103,11 @@ curl -X GET \
   "data": {
     "id": "key_123",
     "name": "Production API Key",
-    "user_id": "user_456",
+    "user_id": 456,
     "plan_id": "plan_789",
+    "status": "active",
     "created_at": "2024-01-01T00:00:00Z",
-    "updated_at": "2024-01-01T00:00:00Z",
-    "metadata": {
-      "environment": "production"
-    }
+    "updated_at": "2024-01-01T00:00:00Z"
   }
 }
 ```
@@ -135,9 +122,7 @@ curl -X PUT \
   -H "Content-Type: application/json" \
   -d '{
     "name": "Updated API Key Name",
-    "metadata": {
-      "environment": "production"
-    }
+    "status": "inactive"
   }' \
   https://api.limitly.dev/v1/keys/key_123
 ```
@@ -148,13 +133,13 @@ curl -X PUT \
   New name for the API key
 </ParamField>
 
-<ParamField body="metadata" type="object">
-  Updated metadata for the API key
+<ParamField body="status" type="string">
+  New status for the API key (active, inactive)
 </ParamField>
 
 ## Delete API Key
 
-Delete an API key (soft delete):
+Delete an API key:
 
 ```bash
 curl -X DELETE \
@@ -190,13 +175,11 @@ curl -X POST \
     "id": "key_123",
     "api_key": "lk_user_newabcdef1234567890abcdef1234567890",
     "name": "Production API Key",
-    "user_id": "user_456",
+    "user_id": 456,
     "plan_id": "plan_789",
+    "status": "active",
     "created_at": "2024-01-01T00:00:00Z",
-    "updated_at": "2024-01-01T00:00:00Z",
-    "metadata": {
-      "environment": "production"
-    }
+    "updated_at": "2024-01-01T00:00:00Z"
   }
 }
 ```
@@ -249,11 +232,7 @@ curl -X GET \
         "ip_address": "192.168.1.1"
       }
     ],
-    "pagination": {
-      "page": 1,
-      "limit": 10,
-      "total": 1
-    }
+    "count": 1
   }
 }
 ```
@@ -313,6 +292,6 @@ curl -X GET \
 
 ## Next Steps
 
-- [Plans](/api/plans) - Create and manage usage plans
-- [Users](/api/users) - Manage user accounts and usage
-- [Request Validation](/api/validation) - Validate user requests 
+- [Plans](/rest-api/plans) - Create and manage usage plans
+- [Users](/rest-api/users) - Manage user accounts and usage
+- [Request Validation](/rest-api/validation) - Validate user requests 

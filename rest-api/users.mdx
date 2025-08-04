@@ -1,9 +1,9 @@
 ---
 title: 'Users'
-description: 'Manage user accounts and track their usage via the REST API'
+description: 'Manage user accounts via the REST API'
 ---
 
-Manage user accounts, track their usage, and associate them with plans using the Limitly REST API.
+Manage user accounts and track their usage using the Limitly REST API.
 
 ## List Users
 
@@ -21,23 +21,15 @@ curl -X GET \
 {
   "data": [
     {
-      "user_id": "user_123",
+      "user_id": 123,
       "name": "John Doe",
       "email": "john@example.com",
-      "plan_id": "plan_456",
+      "is_disabled": false,
       "created_at": "2024-01-01T00:00:00Z",
-      "updated_at": "2024-01-01T00:00:00Z",
-      "metadata": {
-        "company": "Acme Corp",
-        "role": "developer"
-      }
+      "updated_at": "2024-01-01T00:00:00Z"
     }
   ],
-  "pagination": {
-    "page": 1,
-    "limit": 10,
-    "total": 1
-  }
+  "count": 1
 }
 ```
 
@@ -51,8 +43,7 @@ curl -X POST \
   -H "Content-Type: application/json" \
   -d '{
     "name": "John Doe",
-    "email": "john@example.com",
-    "plan_id": "plan_123"
+    "email": "john@example.com"
   }' \
   https://api.limitly.dev/v1/users
 ```
@@ -63,16 +54,8 @@ curl -X POST \
   The name of the user
 </ParamField>
 
-<ParamField body="email" type="string" required>
+<ParamField body="email" type="string">
   The email address of the user
-</ParamField>
-
-<ParamField body="plan_id" type="string">
-  The ID of the plan to associate with this user
-</ParamField>
-
-<ParamField body="metadata" type="object">
-  Additional metadata for the user
 </ParamField>
 
 ### Response
@@ -80,13 +63,12 @@ curl -X POST \
 ```json
 {
   "data": {
-    "user_id": "user_123",
+    "user_id": 123,
     "name": "John Doe",
     "email": "john@example.com",
-    "plan_id": "plan_456",
+    "is_disabled": false,
     "created_at": "2024-01-01T00:00:00Z",
-    "updated_at": "2024-01-01T00:00:00Z",
-    "metadata": {}
+    "updated_at": "2024-01-01T00:00:00Z"
   }
 }
 ```
@@ -98,7 +80,7 @@ Retrieve a specific user by ID:
 ```bash
 curl -X GET \
   -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
-  https://api.limitly.dev/v1/users/user_123
+  https://api.limitly.dev/v1/users/123
 ```
 
 ### Response
@@ -106,16 +88,12 @@ curl -X GET \
 ```json
 {
   "data": {
-    "user_id": "user_123",
+    "user_id": 123,
     "name": "John Doe",
     "email": "john@example.com",
-    "plan_id": "plan_456",
+    "is_disabled": false,
     "created_at": "2024-01-01T00:00:00Z",
-    "updated_at": "2024-01-01T00:00:00Z",
-    "metadata": {
-      "company": "Acme Corp",
-      "role": "developer"
-    }
+    "updated_at": "2024-01-01T00:00:00Z"
   }
 }
 ```
@@ -130,13 +108,9 @@ curl -X PUT \
   -H "Content-Type: application/json" \
   -d '{
     "name": "John Smith",
-    "plan_id": "plan_789",
-    "metadata": {
-      "company": "Acme Corp",
-      "role": "senior_developer"
-    }
+    "email": "john.smith@example.com"
   }' \
-  https://api.limitly.dev/v1/users/user_123
+  https://api.limitly.dev/v1/users/123
 ```
 
 ### Request Parameters
@@ -146,25 +120,21 @@ curl -X PUT \
 </ParamField>
 
 <ParamField body="email" type="string">
-  Updated email address
+  New email address for the user
 </ParamField>
 
-<ParamField body="plan_id" type="string">
-  Updated plan ID to associate with the user
-</ParamField>
-
-<ParamField body="metadata" type="object">
-  Updated metadata for the user
+<ParamField body="is_disabled" type="boolean">
+  Whether the user account is disabled
 </ParamField>
 
 ## Delete User
 
-Delete a user account (soft delete):
+Delete a user account:
 
 ```bash
 curl -X DELETE \
   -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
-  https://api.limitly.dev/v1/users/user_123
+  https://api.limitly.dev/v1/users/123
 ```
 
 ### Response
@@ -184,7 +154,7 @@ Get usage statistics for a specific user:
 ```bash
 curl -X GET \
   -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
-  https://api.limitly.dev/v1/users/user_123/usage
+  https://api.limitly.dev/v1/users/123/usage
 ```
 
 ### Response
@@ -192,11 +162,11 @@ curl -X GET \
 ```json
 {
   "data": {
+    "type": "user",
     "current_usage": 45,
     "limit": 1000,
-    "remaining": 955,
-    "reset_time": "2024-02-01T00:00:00Z",
-    "period": "month",
+    "percentage_used": 4.5,
+    "user_name": "John Doe",
     "plan_name": "Basic Plan"
   }
 }
@@ -204,12 +174,12 @@ curl -X GET \
 
 ## Get User API Keys
 
-Get all API keys for a specific user:
+Get all API keys associated with a user:
 
 ```bash
 curl -X GET \
   -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
-  https://api.limitly.dev/v1/users/user_123/keys
+  https://api.limitly.dev/v1/users/123/keys
 ```
 
 ### Response
@@ -220,17 +190,12 @@ curl -X GET \
     {
       "id": "key_123",
       "name": "Production API Key",
-      "created_at": "2024-01-01T00:00:00Z",
-      "metadata": {
-        "environment": "production"
-      }
+      "plan_id": "plan_789",
+      "status": "active",
+      "created_at": "2024-01-01T00:00:00Z"
     }
   ],
-  "pagination": {
-    "page": 1,
-    "limit": 10,
-    "total": 1
-  }
+  "count": 1
 }
 ```
 
@@ -241,7 +206,7 @@ Get detailed request history for a user:
 ```bash
 curl -X GET \
   -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
-  https://api.limitly.dev/v1/users/user_123/requests
+  https://api.limitly.dev/v1/users/123/requests
 ```
 
 ### Response
@@ -255,16 +220,47 @@ curl -X GET \
         "endpoint": "/api/users",
         "method": "GET",
         "status": "allowed",
-        "api_key_id": "key_123"
+        "ip_address": "192.168.1.1"
       }
     ],
-    "pagination": {
-      "page": 1,
-      "limit": 10,
-      "total": 1
-    }
+    "count": 1
   }
 }
+```
+
+## User Status Management
+
+Manage user account status:
+
+```bash
+# Activate a user
+curl -X PUT \
+  -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "is_disabled": false
+  }' \
+  https://api.limitly.dev/v1/users/123
+
+# Suspend a user
+curl -X PUT \
+  -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "is_disabled": true
+  }' \
+  https://api.limitly.dev/v1/users/123
+```
+
+## Search Users
+
+Search for users by various criteria:
+
+```bash
+# Search by email
+curl -X GET \
+  -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
+  "https://api.limitly.dev/v1/users?email=john@example.com"
 ```
 
 ## Error Responses
@@ -286,7 +282,7 @@ curl -X GET \
   "code": "VALIDATION_ERROR",
   "details": {
     "field": "email",
-    "message": "Email is required"
+    "message": "Invalid email format"
   }
 }
 ```
@@ -300,28 +296,39 @@ curl -X GET \
 }
 ```
 
-## User Management Best Practices
+## Pagination
 
-<CardGroup cols={1}>
-  <Card title="User Organization">
-    Use metadata to organize users by company, team, or role. This helps with reporting and management.
-  </Card>
-</CardGroup>
+List endpoints support pagination with the following query parameters:
 
-<CardGroup cols={1}>
-  <Card title="Plan Assignment">
-    Always assign users to appropriate plans based on their needs and usage patterns.
-  </Card>
-</CardGroup>
+<ParamField body="page" type="number">
+  Page number (default: 1)
+</ParamField>
 
-<CardGroup cols={1}>
-  <Card title="Usage Monitoring">
-    Regularly monitor user usage to identify patterns and optimize plan assignments.
-  </Card>
-</CardGroup>
+<ParamField body="limit" type="number">
+  Number of items per page (default: 10, max: 100)
+</ParamField>
+
+### Example
+
+```bash
+curl -X GET \
+  -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
+  "https://api.limitly.dev/v1/users?page=2&limit=20"
+```
+
+## User Properties
+
+The API supports the following user properties:
+
+- **user_id**: Unique identifier for the user
+- **name**: User's display name
+- **email**: User's email address (optional)
+- **is_disabled**: Whether the user account is disabled
+- **created_at**: Timestamp when the user was created
+- **updated_at**: Timestamp when the user was last updated
 
 ## Next Steps
 
-- [API Key Management](/api/api-keys) - Generate and manage API keys for users
-- [Plans](/api/plans) - Create and manage usage plans
-- [Request Validation](/api/validation) - Validate user requests 
+- [API Key Management](/rest-api/api-keys) - Create API keys for users
+- [Plans](/rest-api/plans) - Assign users to plans
+- [Request Validation](/rest-api/validation) - Validate requests for users 

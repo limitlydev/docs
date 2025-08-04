@@ -23,7 +23,7 @@ Limitly API keys follow this format:
 
 ## Getting Your API Key
 
-1. Log in to your [Limitly Dashboard](https://app.limitly.dev)
+1. Log in to your [Limitly Dashboard](https://app.limitly.com)
 2. Navigate to the **API Keys** section
 3. Create a new API key or copy an existing one
 4. Use this key in your API requests
@@ -42,8 +42,6 @@ const response = await fetch('https://api.limitly.dev/v1/keys', {
 
 const data = await response.json();
 ```
-
-
 
 ### cURL
 
@@ -115,6 +113,6 @@ If you exceed this limit, you'll receive a `429 Too Many Requests` response:
 
 ## Next Steps
 
-- [Request Validation](/api/validation) - Learn how to validate user requests
-- [API Key Management](/api/api-keys) - Manage API keys for your users
-- [Plans](/api/plans) - Create and manage usage plans 
+- [Request Validation](/rest-api/validation) - Learn how to validate user requests
+- [API Key Management](/rest-api/api-keys) - Manage API keys for your users
+- [Plans](/rest-api/plans) - Create and manage usage plans 

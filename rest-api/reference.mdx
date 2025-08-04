@@ -1,185 +1,121 @@
 ---
 title: 'API Reference'
-description: 'Complete API reference with interactive documentation powered by OpenAPI'
+description: 'Complete reference for the Limitly REST API'
 ---
 
-Welcome to the Limitly API reference. This interactive documentation is powered by OpenAPI 3.0.3 and provides real-time testing capabilities.
+Complete reference for the Limitly REST API endpoints, parameters, and responses.
 
-## Quick Start
+## Base URL
 
-### Authentication
+All API requests should be made to:
 
-All API requests require authentication using your API key:
-
-```bash
-curl -H "Authorization: Bearer YOUR_API_KEY" \
-  https://api.limitly.dev/v1/users
+```
+https://api.limitly.dev
 ```
 
-### Base URLs
+## Authentication
 
-- **Production**: `https://api.limitly.dev`
-- **Sandbox**: `https://sandbox-api.limitly.dev`
+All API requests require authentication using your API key in the `Authorization` header:
 
-### Rate Limits
+```bash
+Authorization: Bearer lk_1234567890abcdef1234567890abcdef
+```
 
-API requests are subject to rate limiting based on your plan:
+## API Versioning
 
-- **Free Plan**: 100 requests/hour
-- **Pro Plan**: 1,000 requests/hour
-- **Enterprise Plan**: 10,000 requests/hour
+The current API version is `v1`. All endpoints are prefixed with `/v1/`.
 
-## API Endpoints
+## Rate Limiting
 
-### Users Management
+The Limitly API itself is rate limited to 1000 requests per minute per API key.
 
-Manage user accounts and their associated plans:
+## Common Response Format
 
-<CardGroup cols={2}>
-  <Card title="List Users" href="#get-users">
-    Get all users for your account
-  </Card>
-  <Card title="Create User" href="#create-user">
-    Create a new user account
-  </Card>
-  <Card title="Get User" href="#get-user">
-    Get details for a specific user
-  </Card>
-  <Card title="Update User" href="#update-user">
-    Update user information
-  </Card>
-  <Card title="Delete User" href="#delete-user">
-    Delete a user account
-  </Card>
-  <Card title="User Usage" href="#user-usage">
-    Get user usage statistics
-  </Card>
-</CardGroup>
-
-### API Keys Management
-
-Manage API keys for authentication:
-
-<CardGroup cols={2}>
-  <Card title="List API Keys" href="#list-api-keys">
-    Get all API keys for your account
-  </Card>
-  <Card title="Create API Key" href="#create-api-key">
-    Create a new API key
-  </Card>
-  <Card title="Get API Key" href="#get-api-key">
-    Get details for a specific API key
-  </Card>
-  <Card title="Update API Key" href="#update-api-key">
-    Update API key information
-  </Card>
-  <Card title="Delete API Key" href="#delete-api-key">
-    Delete an API key
-  </Card>
-</CardGroup>
-
-### Plans Management
-
-Manage rate limiting plans:
-
-<CardGroup cols={2}>
-  <Card title="List Plans" href="#list-plans">
-    Get all available plans
-  </Card>
-  <Card title="Create Plan" href="#create-plan">
-    Create a new plan
-  </Card>
-  <Card title="Get Plan" href="#get-plan">
-    Get details for a specific plan
-  </Card>
-  <Card title="Update Plan" href="#update-plan">
-    Update plan information
-  </Card>
-  <Card title="Delete Plan" href="#delete-plan">
-    Delete a plan
-  </Card>
-</CardGroup>
-
-### Validation
-
-Validate API requests against rate limits:
-
-<CardGroup cols={1}>
-  <Card title="Validate Request" href="#validate-request">
-    Validate if a request should be allowed
-  </Card>
-</CardGroup>
-
-## Response Format
-
-All API responses follow a consistent format:
-
-### Success Response
+All API responses follow this format:
 
 ```json
 {
   "data": {
     // Response data
   },
-  "pagination": {
-    "page": 1,
-    "limit": 20,
-    "total": 100,
-    "pages": 5
-  }
+  "count": 1
 }
 ```
 
-### Error Response
+## Error Responses
+
+Error responses include an error message and code:
 
 ```json
 {
   "error": "Error message",
-  "code": "ERROR_CODE",
-  "details": {
-    // Additional error details
-  }
+  "code": "ERROR_CODE"
 }
 ```
 
-## Common HTTP Status Codes
+## Common Error Codes
 
-- `200` - Success
-- `201` - Created
-- `400` - Bad Request
-- `401` - Unauthorized
-- `404` - Not Found
-- `429` - Too Many Requests
-- `500` - Internal Server Error
+| Code | Description |
+|------|-------------|
+| `INVALID_API_KEY` | The API key is invalid or expired |
+| `RATE_LIMIT_EXCEEDED` | Rate limit exceeded |
+| `VALIDATION_ERROR` | Request validation failed |
+| `NOT_FOUND` | Resource not found |
+| `UNAUTHORIZED` | Authentication required |
 
-## Data Models
+## Endpoints
 
-### User Object
+### Authentication
 
-```json
-{
-  "id": "user_1234567890abcdef",
-  "name": "John Doe",
-  "email": "john@example.com",
-  "plan_id": "plan_1234567890abcdef",
-  "status": "active",
-  "created_at": "2024-01-01T00:00:00Z",
-  "last_login": "2024-01-01T12:00:00Z"
-}
-```
+- `POST /v1/validate` - Validate a user request
+
+### API Keys
+
+- `GET /v1/keys` - List all API keys
+- `POST /v1/keys` - Create a new API key
+- `GET /v1/keys/{id}` - Get API key details
+- `PUT /v1/keys/{id}` - Update an API key
+- `DELETE /v1/keys/{id}` - Delete an API key
+- `POST /v1/keys/{id}/regenerate` - Regenerate an API key
+- `GET /v1/keys/{id}/usage` - Get API key usage
+- `GET /v1/keys/{id}/requests` - Get API key request history
+
+### Plans
+
+- `GET /v1/plans` - List all plans
+- `POST /v1/plans` - Create a new plan
+- `GET /v1/plans/{id}` - Get plan details
+- `PUT /v1/plans/{id}` - Update a plan
+- `DELETE /v1/plans/{id}` - Delete a plan
+- `GET /v1/plans/{id}/usage` - Get plan usage
+- `GET /v1/plans/{id}/users` - Get plan users
+- `GET /v1/plans/{id}/keys` - Get plan API keys
+
+### Users
+
+- `GET /v1/users` - List all users
+- `POST /v1/users` - Create a new user
+- `GET /v1/users/{id}` - Get user details
+- `PUT /v1/users/{id}` - Update a user
+- `DELETE /v1/users/{id}` - Delete a user
+- `GET /v1/users/{id}/usage` - Get user usage
+- `GET /v1/users/{id}/keys` - Get user API keys
+- `GET /v1/users/{id}/requests` - Get user request history
+
+## Data Types
 
 ### API Key Object
 
 ```json
 {
-  "id": "key_1234567890abcdef",
+  "id": "key_123",
+  "api_key": "lk_user_abcdef1234567890abcdef1234567890",
   "name": "Production API Key",
-  "api_key": "lk_1234567890abcdef1234567890abcdef",
-  "user_id": "user_1234567890abcdef",
-  "plan_id": "plan_1234567890abcdef",
+  "user_id": 123,
+  "plan_id": "plan_456",
   "status": "active",
   "created_at": "2024-01-01T00:00:00Z",
-  "last_used": "2024-01-01T12:00:00Z"
+  "updated_at": "2024-01-01T00:00:00Z"
 }
 ```
 
@@ -187,102 +123,82 @@ All API responses follow a consistent format:
 
 ```json
 {
-  "id": "plan_1234567890abcdef",
-  "name": "Pro Plan",
-  "description": "Professional plan with higher limits",
-  "rate_limit": 1000,
-  "period": "hour",
-  "price": 29.99,
-  "currency": "USD",
-  "status": "active",
-  "created_at": "2024-01-01T00:00:00Z"
+  "id": "plan_123",
+  "name": "Basic Plan",
+  "description": "Plan for basic users",
+  "max_requests": 10000,
+  "request_period": "month",
+  "is_active": true,
+  "created_at": "2024-01-01T00:00:00Z",
+  "updated_at": "2024-01-01T00:00:00Z"
 }
 ```
 
-### Usage Object
+### User Object
 
 ```json
 {
-  "current_usage": 45,
-  "limit": 1000,
-  "remaining": 955,
-  "reset_time": "2024-02-01T00:00:00Z",
-  "period": "month"
+  "user_id": 123,
+  "name": "John Doe",
+  "email": "john@example.com",
+  "is_disabled": false,
+  "created_at": "2024-01-01T00:00:00Z",
+  "updated_at": "2024-01-01T00:00:00Z"
 }
 ```
 
-## Interactive Documentation
+### Validation Response
 
-Use the interactive documentation below to:
-
-1. **Test Endpoints**: Try API calls directly from your browser
-2. **View Schemas**: Explore request/response schemas
-3. **Generate Code**: Download code samples in multiple languages
-4. **Validate Requests**: Ensure your requests match the specification
-
-<Note>
-  The interactive documentation is powered by OpenAPI 3.0.3 and provides real-time validation and testing capabilities.
-</Note>
-
-## SDKs and Libraries
-
-We provide official SDKs for popular programming languages (Node.js for the moment):
-
-- **Node.js**: `npm install @limitly/sdk`
-- **Python**: Coming soon
-
-## Code Generation
-
-Generate client libraries using tools like:
-
-- **OpenAPI Generator**: `openapi-generator-cli generate`
-- **Swagger Codegen**: `swagger-codegen generate`
-- **NSwag**: For .NET applications
-
-## Examples
-
-### Creating a User
-
-```bash
-curl -X POST \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "John Doe",
-    "email": "john@example.com",
-    "plan_id": "plan_1234567890abcdef"
-  }' \
-  https://api.limitly.dev/v1/users
+```json
+{
+  "success": true,
+  "details": {
+    "current_usage": 45,
+    "limit": 1000,
+    "remaining": 955,
+    "reset_time": "2024-02-01T00:00:00Z",
+    "plan_name": "Basic Plan"
+  }
+}
 ```
 
-### Validating a Request
+## Pagination
 
-```bash
-curl -X POST \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "api_key": "lk_1234567890abcdef",
-    "endpoint": "/api/users",
-    "method": "GET",
-    "ip_address": "192.168.1.1"
-  }' \
-  https://api.limitly.dev/v1/validate
-```
+List endpoints support pagination with query parameters:
 
-## Best Practices
+- `page` - Page number (default: 1)
+- `limit` - Items per page (default: 10, max: 100)
 
-1. **Always Handle Errors**: Check for error responses and handle them appropriately
-2. **Use Pagination**: For list endpoints, use pagination to handle large datasets
-3. **Cache Responses**: Cache responses when appropriate to reduce API calls
-4. **Monitor Rate Limits**: Track your rate limit usage to avoid hitting limits
-5. **Validate Input**: Use the OpenAPI schema to validate your requests
-6. **Use HTTPS**: Always use HTTPS in production environments
-7. **Keep API Keys Secure**: Never expose API keys in client-side code
+## HTTP Status Codes
 
-## Getting Help
+| Code | Description |
+|------|-------------|
+| `200` | Success |
+| `201` | Created |
+| `400` | Bad Request |
+| `401` | Unauthorized |
+| `404` | Not Found |
+| `429` | Too Many Requests |
+| `500` | Internal Server Error |
 
-- **Documentation**: Browse the complete API documentation
-- **Support**: Email us at hi@limitly.dev
-- **GitHub**: Report issues on our GitHub repository
-- **Community**: Join our Discord server
+## SDKs
+
+For easier integration, use our official SDKs:
+
+- [Node.js SDK](/sdk/installation) - JavaScript/TypeScript SDK
+- [Next.js SDK](/sdk/nextjs/installation) - Next.js optimized SDK
+- [Python SDK](/sdk/python/installation) - Python SDK
+
+## Support
+
+For API support and questions:
+
+- [Documentation](/docs) - Complete documentation
+- [Dashboard](https://app.limitly.com) - Manage your account
+- [Contact](mailto:support@limitly.com) - Email support
+
+## Next Steps
+
+- [Authentication](/rest-api/authentication) - Learn how to authenticate
+- [Request Validation](/rest-api/validation) - Validate user requests
+- [API Key Management](/rest-api/api-keys) - Manage API keys

@@ -26,17 +26,12 @@ curl -X GET \
       "description": "Plan for basic users",
       "max_requests": 10000,
       "request_period": "month",
-      "features": ["api_access", "basic_analytics"],
+      "is_active": true,
       "created_at": "2024-01-01T00:00:00Z",
-      "updated_at": "2024-01-01T00:00:00Z",
-      "metadata": {}
+      "updated_at": "2024-01-01T00:00:00Z"
     }
   ],
-  "pagination": {
-    "page": 1,
-    "limit": 10,
-    "total": 1
-  }
+  "count": 1
 }
 ```
 
@@ -53,7 +48,7 @@ curl -X POST \
     "description": "Plan for basic users",
     "max_requests": 10000,
     "request_period": "month",
-    "features": ["api_access", "basic_analytics"]
+    "is_active": true
   }' \
   https://api.limitly.dev/v1/plans
 ```
@@ -76,12 +71,8 @@ curl -X POST \
   The period for the request limit (day, week, month, year)
 </ParamField>
 
-<ParamField body="features" type="array">
-  Array of features included in this plan
-</ParamField>
-
-<ParamField body="metadata" type="object">
-  Additional metadata for the plan
+<ParamField body="is_active" type="boolean">
+  Whether the plan is active (default: true)
 </ParamField>
 
 ### Response
@@ -94,10 +85,9 @@ curl -X POST \
     "description": "Plan for basic users",
     "max_requests": 10000,
     "request_period": "month",
-    "features": ["api_access", "basic_analytics"],
+    "is_active": true,
     "created_at": "2024-01-01T00:00:00Z",
-    "updated_at": "2024-01-01T00:00:00Z",
-    "metadata": {}
+    "updated_at": "2024-01-01T00:00:00Z"
   }
 }
 ```
@@ -122,10 +112,9 @@ curl -X GET \
     "description": "Plan for basic users",
     "max_requests": 10000,
     "request_period": "month",
-    "features": ["api_access", "basic_analytics"],
+    "is_active": true,
     "created_at": "2024-01-01T00:00:00Z",
-    "updated_at": "2024-01-01T00:00:00Z",
-    "metadata": {}
+    "updated_at": "2024-01-01T00:00:00Z"
   }
 }
 ```
@@ -141,7 +130,7 @@ curl -X PUT \
   -d '{
     "name": "Updated Basic Plan",
     "max_requests": 15000,
-    "features": ["api_access", "basic_analytics", "priority_support"]
+    "is_active": true
   }' \
   https://api.limitly.dev/v1/plans/plan_123
 ```
@@ -164,17 +153,13 @@ curl -X PUT \
   Updated request period
 </ParamField>
 
-<ParamField body="features" type="array">
-  Updated array of features
-</ParamField>
-
-<ParamField body="metadata" type="object">
-  Updated metadata for the plan
+<ParamField body="is_active" type="boolean">
+  Updated active status
 </ParamField>
 
 ## Delete Plan
 
-Delete a plan (soft delete):
+Delete a plan:
 
 ```bash
 curl -X DELETE \
@@ -231,17 +216,40 @@ curl -X GET \
 {
   "data": [
     {
-      "user_id": "user_123",
+      "user_id": 123,
       "name": "John Doe",
       "email": "john@example.com",
       "created_at": "2024-01-01T00:00:00Z"
     }
   ],
-  "pagination": {
-    "page": 1,
-    "limit": 10,
-    "total": 1
-  }
+  "count": 1
+}
+```
+
+## Get Plan API Keys
+
+Get all API keys associated with a plan:
+
+```bash
+curl -X GET \
+  -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
+  https://api.limitly.dev/v1/plans/plan_123/keys
+```
+
+### Response
+
+```json
+{
+  "data": [
+    {
+      "id": "key_123",
+      "name": "Production API Key",
+      "user_id": 456,
+      "status": "active",
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  ],
+  "count": 1
 }
 ```
 
@@ -280,22 +288,8 @@ The following periods are supported:
 | `month` | Monthly limit (resets on the 1st of each month) |
 | `year` | Yearly limit (resets on January 1st) |
 
-## Common Plan Features
-
-Here are some common features you might include in your plans:
-
-- `api_access` - Basic API access
-- `basic_analytics` - Basic usage analytics
-- `advanced_analytics` - Advanced analytics and reporting
-- `priority_support` - Priority customer support
-- `webhooks` - Webhook notifications
-- `email_support` - Email support
-- `phone_support` - Phone support
-- `custom_domains` - Custom domain support
-- `team_management` - Team and user management features
-
 ## Next Steps
 
-- [Users](/api/users) - Manage user accounts and usage
-- [API Key Management](/api/api-keys) - Generate and manage API keys
-- [Request Validation](/api/validation) - Validate user requests 
+- [Users](/rest-api/users) - Manage user accounts and usage
+- [API Key Management](/rest-api/api-keys) - Generate and manage API keys
+- [Request Validation](/rest-api/validation) - Validate user requests 
