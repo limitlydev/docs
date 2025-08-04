@@ -1,0 +1,213 @@
+---
+title: 'Next.js SDK Middleware'
+description: 'Use built-in middleware for rate limiting in Next.js applications'
+---
+
+# Middleware
+
+The Limitly Next.js SDK provides built-in middleware functionality to easily add rate limiting to your Next.js API routes.
+
+## Basic Middleware
+
+Create middleware for your API routes:
+
+```typescript
+// app/api/users/route.ts
+import { Limitly } from '@limitly/limitly-nextjs';
+
+const limitly = new Limitly({
+  apiKey: process.env.LIMITLY_API_KEY!
+});
+
+// Create middleware
+const rateLimitMiddleware = limitly.createMiddleware({
+  apiKeyHeader: 'authorization',
+  onRateLimitExceeded: (req, res) => {
+    res.status(429).json({
+      error: 'Rate limit exceeded',
+      message: 'Please try again later'
+    });
+  }
+});
+
+// Apply middleware to your route
+export async function GET(request: Request) {
+  return new Promise((resolve, reject) => {
+    rateLimitMiddleware(request, {
+      status: (code: number) => ({ json: (data: any) => resolve(Response.json(data, { status: code })) })
+    }, () => {
+      // Your API logic here
+      resolve(Response.json({ message: 'Success' }));
+    });
+  });
+}
+```
+
+## Using withRateLimit Helper
+
+The `withRateLimit` helper provides a simpler way to add rate limiting:
+
+```typescript
+// app/api/users/route.ts
+import { Limitly } from '@limitly/limitly-nextjs';
+
+const limitly = new Limitly({
+  apiKey: process.env.LIMITLY_API_KEY!
+});
+
+async function handleGetUsers(request: Request) {
+  // Your API logic here
+  return Response.json({ users: [] });
+}
+
+// Wrap your handler with rate limiting
+export const GET = limitly.withRateLimit(handleGetUsers);
+```
+
+## Custom Middleware Options
+
+Configure middleware with custom options:
+
+```typescript
+const rateLimitMiddleware = limitly.createMiddleware({
+  apiKeyHeader: 'x-api-key', // Custom header
+  onRateLimitExceeded: (req, res) => {
+    res.status(429).json({
+      error: 'Too many requests',
+      retryAfter: 60
+    });
+  },
+  onValidationError: (req, res, error) => {
+    res.status(400).json({
+      error: 'Validation error',
+      details: error.message
+    });
+  }
+});
+```
+
+## Global Middleware Setup
+
+Set up middleware globally for all API routes:
+
+```typescript
+// middleware.ts
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { Limitly } from '@limitly/limitly-nextjs';
+
+const limitly = new Limitly({
+  apiKey: process.env.LIMITLY_API_KEY!
+});
+
+export function middleware(request: NextRequest) {
+  // Only apply to API routes
+  if (request.nextUrl.pathname.startsWith('/api/')) {
+    const apiKey = request.headers.get('authorization')?.replace('Bearer ', '');
+    
+    if (!apiKey) {
+      return NextResponse.json(
+        { error: 'API Key required' },
+        { status: 401 }
+      );
+    }
+
+    // Note: This is a simplified example
+    // In practice, you'd want to handle the async validation properly
+    return NextResponse.next();
+  }
+
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: '/api/:path*',
+};
+```
+
+## Error Handling
+
+Handle different types of errors in your middleware:
+
+```typescript
+const rateLimitMiddleware = limitly.createMiddleware({
+  onRateLimitExceeded: (req, res) => {
+    res.status(429).json({
+      error: 'Rate limit exceeded',
+      message: 'Please try again later',
+      retryAfter: 60
+    });
+  },
+  onValidationError: (req, res, error) => {
+    if (error.message.includes('API Key')) {
+      res.status(401).json({
+        error: 'Invalid API key',
+        message: 'Please provide a valid API key'
+      });
+    } else {
+      res.status(400).json({
+        error: 'Validation error',
+        message: error.message
+      });
+    }
+  }
+});
+```
+
+## Multiple API Keys
+
+Handle multiple API key formats:
+
+```typescript
+const rateLimitMiddleware = limitly.createMiddleware({
+  apiKeyHeader: 'authorization',
+  onRateLimitExceeded: (req, res) => {
+    res.status(429).json({ error: 'Rate limit exceeded' });
+  }
+});
+
+// The middleware will check for API keys in:
+// 1. Authorization header (Bearer token)
+// 2. X-API-Key header
+// 3. api_key query parameter
+```
+
+## Testing Middleware
+
+Test your middleware with different scenarios:
+
+```typescript
+// test-middleware.js
+import { Limitly } from '@limitly/limitly-nextjs';
+
+const limitly = new Limitly({
+  apiKey: process.env.LIMITLY_API_KEY!
+});
+
+const middleware = limitly.createMiddleware({
+  onRateLimitExceeded: (req, res) => {
+    res.status(429).json({ error: 'Rate limit exceeded' });
+  }
+});
+
+// Test with valid API key
+const mockRequest = {
+  headers: { authorization: 'Bearer valid_api_key' },
+  url: '/api/test',
+  method: 'GET'
+};
+
+const mockResponse = {
+  status: (code) => ({ json: (data) => console.log(`Status ${code}:`, data) })
+};
+
+middleware(mockRequest, mockResponse, () => {
+  console.log('Request allowed');
+});
+```
+
+## Next Steps
+
+- [API Key Management](/sdk/nextjs/api-keys) - Manage API keys for your users
+- [Plans](/sdk/nextjs/plans) - Configure usage plans
+- [Users](/sdk/nextjs/users) - Manage user accounts 

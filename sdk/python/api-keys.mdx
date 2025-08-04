@@ -1,0 +1,293 @@
+---
+title: 'Python SDK API Key Management'
+description: 'Manage API keys using the Limitly Python SDK'
+---
+
+# API Key Management
+
+The Limitly Python SDK provides comprehensive API key management capabilities for your application.
+
+## Creating API Keys
+
+Create new API keys for your users:
+
+```python
+from limitly import Limitly
+
+limitly = Limitly(api_key="your_limitly_api_key")
+
+# Create a new API key
+new_api_key = limitly.api_keys.create({
+    "name": "User API Key",
+    "user_id": 123,
+    "plan_id": "plan_456",
+    "status": "active"
+})
+
+print(f"New API key: {new_api_key.data.api_key}")
+```
+
+## Listing API Keys
+
+Retrieve all API keys for the authenticated owner:
+
+```python
+# Get all API keys
+api_keys = limitly.api_keys.list()
+
+print(f"API keys: {api_keys.data}")
+```
+
+## Getting API Key Details
+
+Get detailed information about a specific API key:
+
+```python
+# Get API key details
+api_key = limitly.api_keys.get("key_123")
+
+print("API key details:", {
+    "id": api_key.data.id,
+    "name": api_key.data.name,
+    "status": api_key.data.status,
+    "created_at": api_key.data.created_at,
+    "user_id": api_key.data.user_id,
+    "plan_id": api_key.data.plan_id
+})
+```
+
+## Updating API Keys
+
+Update API key properties:
+
+```python
+# Update an API key
+updated_api_key = limitly.api_keys.update("key_123", {
+    "name": "Updated API Key Name",
+    "status": "inactive"
+})
+
+print(f"Updated API key: {updated_api_key.data}")
+```
+
+## Deleting API Keys
+
+Delete API keys when they're no longer needed:
+
+```python
+# Delete an API key
+limitly.api_keys.delete("key_123")
+
+print("API key deleted successfully")
+```
+
+## Regenerating API Keys
+
+Regenerate an existing API key to get a new key value:
+
+```python
+# Regenerate an API key
+regenerated_api_key = limitly.api_keys.regenerate("key_123")
+
+print(f"New API key value: {regenerated_api_key.data.api_key}")
+```
+
+## API Key Usage
+
+Get usage statistics for an API key:
+
+```python
+# Get API key usage
+usage = limitly.api_keys.get_usage("key_123")
+
+print("API key usage:", {
+    "totalRequests": usage.data.totalRequests,
+    "requestsInPeriod": usage.data.requestsInPeriod,
+    "percentageUsed": usage.data.percentageUsed,
+    "limit": usage.data.limit,
+    "planName": usage.data.planName
+})
+```
+
+## API Key Requests History
+
+Get detailed request history for an API key:
+
+```python
+# Get API key requests history
+requests = limitly.api_keys.get_requests("key_123")
+
+print("Request history:", {
+    "totalRequests": requests.data.totalRequests,
+    "requestsInPeriod": requests.data.requestsInPeriod,
+    "requestsDetails": requests.data.requestsInPeriodDetails
+})
+```
+
+## FastAPI Example
+
+Here's a complete example of API key management in a FastAPI application:
+
+```python
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from limitly import Limitly
+
+app = FastAPI()
+limitly = Limitly(api_key=os.getenv("LIMITLY_API_KEY"))
+
+class CreateApiKeyRequest(BaseModel):
+    name: str
+    user_id: int = None
+    plan_id: str = None
+    status: str = "active"
+
+@app.post("/api/keys")
+async def create_api_key(request: CreateApiKeyRequest):
+    try:
+        new_api_key = limitly.api_keys.create({
+            "name": request.name,
+            "user_id": request.user_id,
+            "plan_id": request.plan_id,
+            "status": request.status
+        })
+        
+        return {
+            "success": True,
+            "api_key": new_api_key.data
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/keys")
+async def list_api_keys():
+    try:
+        api_keys = limitly.api_keys.list()
+        
+        return {
+            "success": True,
+            "api_keys": api_keys.data,
+            "count": api_keys.count
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+```
+
+## Flask Example
+
+Here's a complete example of API key management in a Flask application:
+
+```python
+from flask import Flask, request, jsonify
+from limitly import Limitly
+
+app = Flask(__name__)
+limitly = Limitly(api_key=os.getenv("LIMITLY_API_KEY"))
+
+@app.route("/api/keys", methods=["POST"])
+def create_api_key():
+    try:
+        data = request.get_json()
+        
+        new_api_key = limitly.api_keys.create({
+            "name": data["name"],
+            "user_id": data.get("user_id"),
+            "plan_id": data.get("plan_id"),
+            "status": data.get("status", "active")
+        })
+        
+        return jsonify({
+            "success": True,
+            "api_key": new_api_key.data
+        })
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+@app.route("/api/keys", methods=["GET"])
+def list_api_keys():
+    try:
+        api_keys = limitly.api_keys.list()
+        
+        return jsonify({
+            "success": True,
+            "api_keys": api_keys.data,
+            "count": api_keys.count
+        })
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+```
+
+## Error Handling
+
+Handle API key management errors:
+
+```python
+from limitly import Limitly, LimitlyError
+
+limitly = Limitly(api_key=os.getenv("LIMITLY_API_KEY"))
+
+try:
+    api_key = limitly.api_keys.create({
+        "name": "Test Key",
+        "user_id": 123,
+        "plan_id": "plan_456"
+    })
+    
+    print(f"API key created: {api_key.data.api_key}")
+    
+except LimitlyError as e:
+    if "Invalid user" in str(e):
+        print("User not found")
+    elif "Invalid plan" in str(e):
+        print("Plan not found")
+    else:
+        print(f"Unexpected error: {e}")
+except Exception as e:
+    print(f"Unexpected error: {e}")
+```
+
+## CLI Management
+
+Use the CLI tool for API key management:
+
+```bash
+# Create an API key
+limitly api-keys create --name "Test Key" --user-id 123 --plan-id plan_456
+
+# List API keys
+limitly api-keys list
+
+# Get API key details
+limitly api-keys get --key-id key_123
+
+# Update an API key
+limitly api-keys update --key-id key_123 --name "Updated Name"
+
+# Delete an API key
+limitly api-keys delete --key-id key_123
+```
+
+## API Key Properties
+
+The SDK supports the following API key properties:
+
+- **id**: Unique identifier for the API key
+- **name**: Human-readable name for the API key
+- **status**: Either 'active' or 'inactive'
+- **created_at**: Timestamp when the API key was created
+- **last_used_at**: Timestamp of last usage (optional)
+- **user_id**: Associated user ID (optional)
+- **plan_id**: Associated plan ID (optional)
+- **api_key**: The actual API key value (only included in creation/regeneration)
+
+## Next Steps
+
+- [Plans](/sdk/python/plans) - Configure usage plans
+- [Users](/sdk/python/users) - Manage user accounts
+- [Request Validation](/sdk/python/validation) - Validate requests with API keys 

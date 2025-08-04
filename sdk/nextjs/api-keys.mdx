@@ -1,0 +1,237 @@
+---
+title: 'Next.js SDK API Key Management'
+description: 'Manage API keys using the Limitly Next.js SDK'
+---
+
+# API Key Management
+
+The Limitly Next.js SDK provides comprehensive API key management capabilities for your application.
+
+## Creating API Keys
+
+Create new API keys for your users:
+
+```typescript
+import { Limitly } from '@limitly/limitly-nextjs';
+
+const limitly = new Limitly({
+  apiKey: process.env.LIMITLY_API_KEY!
+});
+
+// Create a new API key
+const newApiKey = await limitly.apiKeys.create({
+  name: 'User API Key',
+  user_id: 123,
+  plan_id: 'plan_456',
+  status: 'active'
+});
+
+console.log('New API key:', newApiKey.data?.api_key);
+```
+
+## Listing API Keys
+
+Retrieve all API keys for the authenticated owner:
+
+```typescript
+// Get all API keys
+const apiKeys = await limitly.apiKeys.list({
+  limit: 10,
+  offset: 0
+});
+
+console.log('API keys:', apiKeys.data);
+```
+
+## Getting API Key Details
+
+Get detailed information about a specific API key:
+
+```typescript
+// Get API key details
+const apiKey = await limitly.apiKeys.get('key_123');
+
+console.log('API key details:', {
+  id: apiKey.data?.id,
+  name: apiKey.data?.name,
+  status: apiKey.data?.status,
+  created_at: apiKey.data?.created_at,
+  user_id: apiKey.data?.user_id,
+  plan_id: apiKey.data?.plan_id
+});
+```
+
+## Updating API Keys
+
+Update API key properties:
+
+```typescript
+// Update an API key
+const updatedApiKey = await limitly.apiKeys.update('key_123', {
+  name: 'Updated API Key Name',
+  status: 'inactive'
+});
+
+console.log('Updated API key:', updatedApiKey.data);
+```
+
+## Deleting API Keys
+
+Delete API keys when they're no longer needed:
+
+```typescript
+// Delete an API key
+await limitly.apiKeys.delete('key_123');
+
+console.log('API key deleted successfully');
+```
+
+## Regenerating API Keys
+
+Regenerate an existing API key to get a new key value:
+
+```typescript
+// Regenerate an API key
+const regeneratedApiKey = await limitly.apiKeys.regenerate('key_123');
+
+console.log('New API key value:', regeneratedApiKey.data?.api_key);
+```
+
+## API Key Usage
+
+Get usage statistics for an API key:
+
+```typescript
+// Get API key usage
+const usage = await limitly.apiKeys.getUsage('key_123');
+
+console.log('API key usage:', {
+  totalRequests: usage.data?.totalRequests,
+  requestsInPeriod: usage.data?.requestsInPeriod,
+  percentageUsed: usage.data?.percentageUsed,
+  limit: usage.data?.limit,
+  planName: usage.data?.planName
+});
+```
+
+## API Key Requests History
+
+Get detailed request history for an API key:
+
+```typescript
+// Get API key requests history
+const requests = await limitly.apiKeys.getRequests('key_123');
+
+console.log('Request history:', {
+  totalRequests: requests.data?.totalRequests,
+  requestsInPeriod: requests.data?.requestsInPeriod,
+  requestsDetails: requests.data?.requestsInPeriodDetails
+});
+```
+
+## API Route Example
+
+Here's a complete example of API key management in a Next.js API route:
+
+```typescript
+// app/api/keys/route.ts
+import { Limitly } from '@limitly/limitly-nextjs';
+
+const limitly = new Limitly({
+  apiKey: process.env.LIMITLY_API_KEY!
+});
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    
+    const newApiKey = await limitly.apiKeys.create({
+      name: body.name,
+      user_id: body.user_id,
+      plan_id: body.plan_id,
+      status: body.status || 'active'
+    });
+
+    return Response.json({
+      success: true,
+      apiKey: newApiKey.data
+    });
+  } catch (error) {
+    return Response.json({
+      success: false,
+      error: error.message
+    }, { status: 500 });
+  }
+}
+
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    
+    const apiKeys = await limitly.apiKeys.list({
+      limit: parseInt(searchParams.get('limit') || '10'),
+      offset: parseInt(searchParams.get('offset') || '0')
+    });
+
+    return Response.json({
+      success: true,
+      apiKeys: apiKeys.data,
+      count: apiKeys.count
+    });
+  } catch (error) {
+    return Response.json({
+      success: false,
+      error: error.message
+    }, { status: 500 });
+  }
+}
+```
+
+## Error Handling
+
+Handle API key management errors:
+
+```typescript
+import { Limitly } from '@limitly/limitly-nextjs';
+
+const limitly = new Limitly({
+  apiKey: process.env.LIMITLY_API_KEY!
+});
+
+try {
+  const apiKey = await limitly.apiKeys.create({
+    name: 'Test Key',
+    user_id: 123,
+    plan_id: 'plan_456'
+  });
+  
+  console.log('API key created:', apiKey.data?.api_key);
+} catch (error) {
+  if (error.message.includes('Invalid user')) {
+    console.error('User not found');
+  } else if (error.message.includes('Invalid plan')) {
+    console.error('Plan not found');
+  } else {
+    console.error('Unexpected error:', error.message);
+  }
+}
+```
+
+## API Key Properties
+
+The SDK supports the following API key properties:
+
+- **id**: Unique identifier for the API key
+- **name**: Human-readable name for the API key
+- **status**: Either 'active' or 'inactive'
+- **created_at**: Timestamp when the API key was created
+- **last_used_at**: Timestamp of last usage (optional)
+- **user_id**: Associated user ID (optional)
+- **plan_id**: Associated plan ID (optional)
+- **api_key**: The actual API key value (only included in creation/regeneration)
+
+## Next Steps
+
+- [Plans](/sdk/nextjs/plans) - Configure usage plans
+- [Users](/sdk/nextjs/users) - Manage user accounts
+- [Request Validation](/sdk/nextjs/validation) - Validate requests with API keys 

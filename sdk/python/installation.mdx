@@ -1,0 +1,157 @@
+---
+title: 'Python SDK Installation'
+description: 'Install and set up the Limitly Python SDK for your project'
+---
+
+# Python SDK Installation
+
+The Limitly Python SDK provides a simple and powerful way to integrate rate limiting into your Python application.
+
+## Installation
+
+### Pip
+
+```bash
+pip install limitly-python
+```
+
+### Poetry
+
+```bash
+poetry add limitly-python
+```
+
+### Pipenv
+
+```bash
+pipenv install limitly-python
+```
+
+## Requirements
+
+- Python 3.8 or higher
+- requests >= 2.25.0
+
+## Basic Setup
+
+Import and initialize the SDK:
+
+```python
+from limitly import Limitly
+
+limitly = Limitly(api_key="your_limitly_api_key")
+```
+
+## Configuration Options
+
+The SDK accepts the following configuration options:
+
+<ParamField body="api_key" type="string" required>
+  Your Limitly API key. You can find this in your Limitly dashboard.
+</ParamField>
+
+<ParamField body="base_url" type="string">
+  The base URL for the Limitly API. Defaults to `https://api.limitly.dev`.
+</ParamField>
+
+<ParamField body="timeout" type="int">
+  Request timeout in seconds. Defaults to 30 seconds.
+</ParamField>
+
+## Example Configuration
+
+```python
+from limitly import Limitly
+
+limitly = Limitly(
+    api_key="lk_1234567890abcdef",
+    base_url="https://api.limitly.dev",
+    timeout=30
+)
+```
+
+## Environment Variables
+
+For security, store your API key in environment variables:
+
+```bash
+# .env
+LIMITLY_API_KEY=lk_1234567890abcdef
+```
+
+Then use it in your application:
+
+```python
+import os
+from limitly import Limitly
+
+limitly = Limitly(api_key=os.getenv("LIMITLY_API_KEY"))
+```
+
+## Async Support
+
+The Python SDK supports both synchronous and asynchronous operations:
+
+```python
+import asyncio
+from limitly import Limitly
+
+# Synchronous usage
+limitly = Limitly(api_key="your_api_key")
+result = limitly.validation.validate("user_api_key", "/api/users", "GET")
+
+# Asynchronous usage (if supported by your environment)
+async def validate_request():
+    result = await limitly.validation.validate("user_api_key", "/api/users", "GET")
+    return result
+```
+
+## CLI Tool
+
+The SDK includes a command-line interface for testing and management:
+
+```bash
+# Install with CLI support
+pip install limitly-python[cli]
+
+# Use the CLI
+limitly --help
+limitly validate --api-key user_key --path /api/users --method GET
+```
+
+## Development Installation
+
+For development and testing:
+
+```bash
+# Clone the repository
+git clone https://github.com/limitlydev/limitly-python.git
+cd limitly-python
+
+# Install in development mode
+pip install -e .
+
+# Install development dependencies
+pip install -e ".[dev]"
+```
+
+## Type Hints
+
+The SDK includes comprehensive type hints for better IDE support:
+
+```python
+from typing import Dict, Any
+from limitly import Limitly, ValidateRequestResponse
+
+limitly = Limitly(api_key="your_api_key")
+
+def validate_user_request(api_key: str, path: str, method: str) -> ValidateRequestResponse:
+    return limitly.validation.validate(api_key, path, method)
+```
+
+## Next Steps
+
+- [Authentication](/sdk/python/authentication) - Learn how to authenticate with the API
+- [Request Validation](/sdk/python/validation) - Validate user requests
+- [Middleware](/sdk/python/middleware) - Use middleware for web frameworks
+- [API Key Management](/sdk/python/api-keys) - Manage API keys for your users 

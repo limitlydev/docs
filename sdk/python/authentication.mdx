@@ -1,0 +1,209 @@
+---
+title: 'Python SDK Authentication'
+description: 'Learn how to authenticate with the Limitly API using the Python SDK'
+---
+
+# Authentication
+
+The Limitly Python SDK uses API key authentication to interact with the Limitly API.
+
+## API Key Setup
+
+To use the SDK, you need a Limitly API key. You can get one from your [Limitly Dashboard](https://app.limitly.dev).
+
+## Basic Authentication
+
+Initialize the SDK with your API key:
+
+```python
+from limitly import Limitly
+
+limitly = Limitly(api_key="lk_1234567890abcdef")
+```
+
+## Environment Variables
+
+For security, store your API key in environment variables:
+
+```bash
+# .env
+LIMITLY_API_KEY=lk_1234567890abcdef
+```
+
+Then use it in your application:
+
+```python
+import os
+from limitly import Limitly
+
+limitly = Limitly(api_key=os.getenv("LIMITLY_API_KEY"))
+```
+
+## FastAPI Example
+
+Here's how to use authentication in a FastAPI application:
+
+```python
+from fastapi import FastAPI, HTTPException, Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from limitly import Limitly
+
+app = FastAPI()
+security = HTTPBearer()
+
+limitly = Limitly(api_key=os.getenv("LIMITLY_API_KEY"))
+
+async def validate_api_key(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    api_key = credentials.credentials
+    
+    result = limitly.validation.validate(api_key, "/api/users", "GET")
+    
+    if not result.success:
+        raise HTTPException(status_code=429, detail="Rate limit exceeded")
+    
+    return api_key
+
+@app.get("/api/users")
+async def get_users(api_key: str = Depends(validate_api_key)):
+    return {"message": "Users retrieved successfully"}
+```
+
+## Flask Example
+
+Here's how to use authentication in a Flask application:
+
+```python
+from flask import Flask, request, jsonify
+from limitly import Limitly
+
+app = Flask(__name__)
+limitly = Limitly(api_key=os.getenv("LIMITLY_API_KEY"))
+
+@app.route("/api/users", methods=["GET"])
+def get_users():
+    api_key = request.headers.get("Authorization", "").replace("Bearer ", "")
+    
+    if not api_key:
+        return jsonify({"error": "API Key required"}), 401
+    
+    result = limitly.validation.validate(api_key, "/api/users", "GET")
+    
+    if not result.success:
+        return jsonify({"error": "Rate limit exceeded"}), 429
+    
+    return jsonify({"message": "Users retrieved successfully"})
+```
+
+## Django Example
+
+Here's how to use authentication in a Django application:
+
+```python
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from limitly import Limitly
+
+limitly = Limitly(api_key=os.getenv("LIMITLY_API_KEY"))
+
+@csrf_exempt
+def get_users(request):
+    api_key = request.headers.get("Authorization", "").replace("Bearer ", "")
+    
+    if not api_key:
+        return JsonResponse({"error": "API Key required"}, status=401)
+    
+    result = limitly.validation.validate(api_key, "/api/users", "GET")
+    
+    if not result.success:
+        return JsonResponse({"error": "Rate limit exceeded"}, status=429)
+    
+    return JsonResponse({"message": "Users retrieved successfully"})
+```
+
+## Error Handling
+
+The SDK provides comprehensive error handling:
+
+```python
+from limitly import Limitly, LimitlyError
+
+limitly = Limitly(api_key=os.getenv("LIMITLY_API_KEY"))
+
+try:
+    result = limitly.validation.validate("user_api_key", "/api/users", "GET")
+    
+    if result.success:
+        print("Request allowed")
+    else:
+        print(f"Request denied: {result.error}")
+        
+except LimitlyError as e:
+    print(f"Authentication error: {e}")
+except Exception as e:
+    print(f"Unexpected error: {e}")
+```
+
+## Custom Headers
+
+You can customize how API keys are extracted from requests:
+
+```python
+def extract_api_key(request):
+    # Check multiple header options
+    api_key = (
+        request.headers.get("Authorization", "").replace("Bearer ", "") or
+        request.headers.get("X-API-Key") or
+        request.args.get("api_key")
+    )
+    return api_key
+
+# Use in your application
+api_key = extract_api_key(request)
+if not api_key:
+    return {"error": "API Key required"}, 401
+```
+
+## Testing Authentication
+
+Test your authentication setup:
+
+```python
+import os
+from limitly import Limitly
+
+def test_authentication():
+    limitly = Limitly(api_key=os.getenv("LIMITLY_API_KEY"))
+    
+    # Test with valid API key
+    result = limitly.validation.validate("valid_api_key", "/api/test", "GET")
+    print(f"Valid key result: {result.success}")
+    
+    # Test with invalid API key
+    try:
+        result = limitly.validation.validate("invalid_api_key", "/api/test", "GET")
+        print(f"Invalid key result: {result.success}")
+    except Exception as e:
+        print(f"Invalid key error: {e}")
+
+if __name__ == "__main__":
+    test_authentication()
+```
+
+## CLI Authentication
+
+Test authentication using the CLI tool:
+
+```bash
+# Test API key validation
+limitly validate --api-key your_api_key --path /api/users --method GET
+
+# Test with environment variable
+export LIMITLY_API_KEY=your_api_key
+limitly validate --api-key $LIMITLY_API_KEY --path /api/users --method GET
+```
+
+## Next Steps
+
+- [Request Validation](/sdk/python/validation) - Validate user requests
+- [Middleware](/sdk/python/middleware) - Use middleware for web frameworks
+- [API Key Management](/sdk/python/api-keys) - Manage API keys for your users 

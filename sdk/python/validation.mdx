@@ -1,0 +1,285 @@
+---
+title: 'Python SDK Request Validation'
+description: 'Learn how to validate requests using the Limitly Python SDK'
+---
+
+# Request Validation
+
+The Limitly Python SDK provides powerful request validation capabilities to enforce rate limits and usage policies.
+
+## Basic Validation
+
+Validate a request using the user's API key:
+
+```python
+from limitly import Limitly
+
+limitly = Limitly(api_key="your_limitly_api_key")
+
+# Validate a request
+result = limitly.validation.validate("user_api_key", "/api/users", "GET")
+
+if result.success:
+    print("Request allowed")
+else:
+    print(f"Request denied: {result.error}")
+```
+
+## FastAPI Integration
+
+Integrate validation directly into your FastAPI application:
+
+```python
+from fastapi import FastAPI, HTTPException, Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from limitly import Limitly
+
+app = FastAPI()
+security = HTTPBearer()
+
+limitly = Limitly(api_key=os.getenv("LIMITLY_API_KEY"))
+
+async def validate_request(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    api_key = credentials.credentials
+    
+    result = limitly.validation.validate(api_key, "/api/users", "GET")
+    
+    if not result.success:
+        raise HTTPException(
+            status_code=429, 
+            detail={
+                "error": "Rate limit exceeded",
+                "details": result.details
+            }
+        )
+    
+    return api_key
+
+@app.get("/api/users")
+async def get_users(api_key: str = Depends(validate_request)):
+    return {"message": "Users retrieved successfully"}
+```
+
+## Flask Integration
+
+Integrate validation into your Flask application:
+
+```python
+from flask import Flask, request, jsonify
+from limitly import Limitly
+
+app = Flask(__name__)
+limitly = Limitly(api_key=os.getenv("LIMITLY_API_KEY"))
+
+@app.route("/api/users", methods=["GET"])
+def get_users():
+    api_key = request.headers.get("Authorization", "").replace("Bearer ", "")
+    
+    if not api_key:
+        return jsonify({"error": "API Key required"}), 401
+    
+    result = limitly.validation.validate(api_key, request.path, request.method)
+    
+    if not result.success:
+        return jsonify({
+            "error": "Rate limit exceeded",
+            "details": result.details
+        }), 429
+    
+    return jsonify({"message": "Users retrieved successfully"})
+```
+
+## Django Integration
+
+Integrate validation into your Django application:
+
+```python
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from limitly import Limitly
+
+limitly = Limitly(api_key=os.getenv("LIMITLY_API_KEY"))
+
+@csrf_exempt
+def get_users(request):
+    api_key = request.headers.get("Authorization", "").replace("Bearer ", "")
+    
+    if not api_key:
+        return JsonResponse({"error": "API Key required"}, status=401)
+    
+    result = limitly.validation.validate(api_key, request.path, request.method)
+    
+    if not result.success:
+        return JsonResponse({
+            "error": "Rate limit exceeded",
+            "details": result.details
+        }, status=429)
+    
+    return JsonResponse({"message": "Users retrieved successfully"})
+```
+
+## Validation Response
+
+The validation method returns a detailed response:
+
+```python
+from limitly import ValidateRequestResponse
+
+def validate_user_request(api_key: str, path: str, method: str) -> ValidateRequestResponse:
+    return limitly.validation.validate(api_key, path, method)
+
+# The response includes:
+# - success: bool
+# - error: Optional[str]
+# - details: Optional[dict] with limit, remaining, reset, retryAfter
+```
+
+## Custom Validation Options
+
+You can pass additional options to the validation:
+
+```python
+result = limitly.validation.validate(
+    "user_api_key",
+    "/api/users",
+    "GET",
+    options={
+        "timeout": 5,
+        "retry_attempts": 3
+    }
+)
+```
+
+## Error Handling
+
+Handle different types of validation errors:
+
+```python
+from limitly import Limitly, LimitlyError
+
+limitly = Limitly(api_key=os.getenv("LIMITLY_API_KEY"))
+
+try:
+    result = limitly.validation.validate("user_api_key", "/api/users", "GET")
+    
+    if result.success:
+        print("Request allowed")
+        print(f"Remaining requests: {result.details.remaining}")
+    else:
+        print(f"Request denied: {result.error}")
+        if result.details:
+            print(f"Retry after: {result.details.retryAfter} seconds")
+            
+except LimitlyError as e:
+    print(f"Validation error: {e}")
+except Exception as e:
+    print(f"Unexpected error: {e}")
+```
+
+## Middleware Pattern
+
+Create reusable validation middleware:
+
+```python
+from functools import wraps
+from flask import request, jsonify
+
+def rate_limit_middleware(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        api_key = request.headers.get("Authorization", "").replace("Bearer ", "")
+        
+        if not api_key:
+            return jsonify({"error": "API Key required"}), 401
+        
+        result = limitly.validation.validate(api_key, request.path, request.method)
+        
+        if not result.success:
+            return jsonify({
+                "error": "Rate limit exceeded",
+                "details": result.details
+            }), 429
+        
+        return f(*args, **kwargs)
+    return decorated_function
+
+# Use the middleware
+@app.route("/api/users", methods=["GET"])
+@rate_limit_middleware
+def get_users():
+    return jsonify({"message": "Users retrieved successfully"})
+```
+
+## Async Validation
+
+For async applications, you can use async validation:
+
+```python
+import asyncio
+from limitly import Limitly
+
+limitly = Limitly(api_key=os.getenv("LIMITLY_API_KEY"))
+
+async def validate_request_async(api_key: str, path: str, method: str):
+    # Note: This is a simplified example
+    # In practice, you'd want to handle the async validation properly
+    result = limitly.validation.validate(api_key, path, method)
+    return result
+
+async def handle_request():
+    result = await validate_request_async("user_api_key", "/api/users", "GET")
+    return result
+```
+
+## Testing Validation
+
+Test your validation setup:
+
+```python
+import os
+from limitly import Limitly
+
+def test_validation():
+    limitly = Limitly(api_key=os.getenv("LIMITLY_API_KEY"))
+    
+    # Test valid request
+    result = limitly.validation.validate("valid_api_key", "/api/test", "GET")
+    print(f"Valid request: {result.success}")
+    
+    # Test rate limit exceeded
+    for i in range(100):  # Make many requests
+        result = limitly.validation.validate("limited_api_key", "/api/test", "GET")
+        if not result.success:
+            print(f"Rate limit hit after {i+1} requests")
+            break
+
+if __name__ == "__main__":
+    test_validation()
+```
+
+## CLI Validation
+
+Test validation using the CLI tool:
+
+```bash
+# Test request validation
+limitly validate --api-key user_key --path /api/users --method GET
+
+# Test with custom options
+limitly validate --api-key user_key --path /api/users --method POST --timeout 10
+```
+
+## Error Types
+
+The SDK handles various error scenarios:
+
+- **Invalid API Key**: Returns authentication error
+- **Rate Limit Exceeded**: Returns rate limit error with details
+- **Network Errors**: Returns connection error
+- **Validation Errors**: Returns validation error
+
+## Next Steps
+
+- [Middleware](/sdk/python/middleware) - Use middleware for web frameworks
+- [API Key Management](/sdk/python/api-keys) - Manage API keys for your users
+- [Plans](/sdk/python/plans) - Configure usage plans 

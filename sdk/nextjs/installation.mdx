@@ -1,0 +1,89 @@
+---
+title: 'Next.js SDK Installation'
+description: 'Install and set up the Limitly Next.js SDK for your project'
+---
+
+# Next.js SDK Installation
+
+The Limitly Next.js SDK provides a simple and powerful way to integrate rate limiting into your Next.js application, optimized for server-side rendering and API routes.
+
+## Installation
+
+### NPM
+
+```bash
+npm install @limitly/limitly-nextjs
+```
+
+### Yarn
+
+```bash
+yarn add @limitly/limitly-nextjs
+```
+
+### PNPM
+
+```bash
+pnpm add @limitly/limitly-nextjs
+```
+
+## Requirements
+
+- Node.js 18.0.0 or higher
+- Next.js 13.0.0 or higher
+
+## Basic Setup
+
+Import and initialize the SDK:
+
+```typescript
+import { Limitly } from '@limitly/limitly-nextjs';
+
+const limitly = new Limitly({
+  apiKey: 'your_limitly_api_key'
+});
+```
+
+## Configuration Options
+
+The SDK accepts the following configuration options:
+
+<ParamField body="apiKey" type="string" required>
+  Your Limitly API key. You can find this in your Limitly dashboard.
+</ParamField>
+
+<ParamField body="baseUrl" type="string">
+  The base URL for the Limitly API. Defaults to `https://api.limitly.dev`.
+</ParamField>
+
+<ParamField body="timeout" type="number">
+  Request timeout in milliseconds. Defaults to 30000 (30 seconds).
+</ParamField>
+
+## Example Configuration
+
+```typescript
+import { Limitly } from '@limitly/limitly-nextjs';
+
+const limitly = new Limitly({
+  apiKey: 'lk_1234567890abcdef',
+  baseUrl: 'https://api.limitly.dev',
+  timeout: 30000
+});
+```
+
+## Next.js Specific Features
+
+The Next.js SDK includes additional features optimized for Next.js applications:
+
+- **Middleware Support**: Built-in middleware for API routes
+- **Server-Side Optimization**: Optimized for server-side rendering
+- **TypeScript Support**: Full TypeScript support with proper types
+- **Error Handling**: Enhanced error handling for Next.js environments
+
+## Next Steps
+
+- [Authentication](/sdk/nextjs/authentication) - Learn how to authenticate with the API
+- [Request Validation](/sdk/nextjs/validation) - Validate user requests
+- [Middleware](/sdk/nextjs/middleware) - Use built-in middleware for API routes
+- [API Key Management](/sdk/nextjs/api-keys) - Manage API keys for your users 

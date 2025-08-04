@@ -20,7 +20,7 @@ curl -X POST \
     "endpoint": "/api/users",
     "method": "GET"
   }' \
-  https://api.limitly.com/v1/validate
+  https://api.limitly.dev/v1/validate
 ```
 
 ### Request Parameters
@@ -108,7 +108,7 @@ curl -X POST \
 
 ```javascript
 async function validateRequest(userApiKey, endpoint, method) {
-  const response = await fetch('https://api.limitly.com/v1/validate', {
+  const response = await fetch('https://api.limitly.dev/v1/validate', {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${process.env.LIMITLY_API_KEY}`,
@@ -154,7 +154,7 @@ app.use(async (req, res, next) => {
   }
   
   try {
-    const response = await fetch('https://api.limitly.com/v1/validate', {
+    const response = await fetch('https://api.limitly.dev/v1/validate', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${process.env.LIMITLY_API_KEY}`,

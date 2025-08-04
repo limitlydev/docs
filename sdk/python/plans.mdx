@@ -1,0 +1,307 @@
+---
+title: 'Python SDK Plans'
+description: 'Manage usage plans using the Limitly Python SDK'
+---
+
+# Plans
+
+The Limitly Python SDK provides comprehensive plan management capabilities to configure rate limits and usage policies.
+
+## Creating Plans
+
+Create new usage plans for your application:
+
+```python
+from limitly import Limitly
+
+limitly = Limitly(api_key="your_limitly_api_key")
+
+# Create a new plan
+new_plan = limitly.plans.create({
+    "name": "Basic Plan",
+    "description": "Basic usage plan with 1000 requests per month",
+    "max_requests": 1000,
+    "request_period": "month",
+    "is_active": True
+})
+
+print(f"New plan created: {new_plan.data.id}")
+```
+
+## Listing Plans
+
+Retrieve all available plans:
+
+```python
+# Get all plans
+plans = limitly.plans.list()
+
+print(f"Available plans: {plans.data}")
+```
+
+## Getting Plan Details
+
+Get detailed information about a specific plan:
+
+```python
+# Get plan details
+plan = limitly.plans.get("plan_123")
+
+print("Plan details:", {
+    "id": plan.data.id,
+    "name": plan.data.name,
+    "description": plan.data.description,
+    "max_requests": plan.data.max_requests,
+    "request_period": plan.data.request_period,
+    "is_active": plan.data.is_active
+})
+```
+
+## Updating Plans
+
+Update plan properties:
+
+```python
+# Update a plan
+updated_plan = limitly.plans.update("plan_123", {
+    "name": "Updated Basic Plan",
+    "description": "Updated description",
+    "max_requests": 2000,
+    "request_period": "month"
+})
+
+print(f"Updated plan: {updated_plan.data}")
+```
+
+## Deleting Plans
+
+Delete plans when they're no longer needed:
+
+```python
+# Delete a plan
+limitly.plans.delete("plan_123")
+
+print("Plan deleted successfully")
+```
+
+## Plan Usage
+
+Get usage statistics for a plan:
+
+```python
+# Get plan usage
+usage = limitly.plans.get_usage("plan_123")
+
+print("Plan usage:", {
+    "plan_id": usage.data.plan_id,
+    "plan_name": usage.data.plan_name,
+    "max_requests": usage.data.max_requests,
+    "total_requests": usage.data.total_requests,
+    "percentage_used": usage.data.percentage_used,
+    "users_count": usage.data.users_count,
+    "api_keys_count": usage.data.api_keys_count
+})
+```
+
+## Plan Users
+
+Get all users associated with a plan:
+
+```python
+# Get plan users
+users = limitly.plans.get_users("plan_123")
+
+print(f"Plan users: {users.data.users}")
+```
+
+## Plan API Keys
+
+Get all API keys associated with a plan:
+
+```python
+# Get plan API keys
+api_keys = limitly.plans.get_keys("plan_123")
+
+print(f"Plan API keys: {api_keys.data.api_keys}")
+```
+
+## FastAPI Example
+
+Here's a complete example of plan management in a FastAPI application:
+
+```python
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from limitly import Limitly
+
+app = FastAPI()
+limitly = Limitly(api_key=os.getenv("LIMITLY_API_KEY"))
+
+class CreatePlanRequest(BaseModel):
+    name: str
+    description: str = None
+    max_requests: int
+    request_period: str
+    is_active: bool = True
+
+@app.post("/api/plans")
+async def create_plan(request: CreatePlanRequest):
+    try:
+        new_plan = limitly.plans.create({
+            "name": request.name,
+            "description": request.description,
+            "max_requests": request.max_requests,
+            "request_period": request.request_period,
+            "is_active": request.is_active
+        })
+        
+        return {
+            "success": True,
+            "plan": new_plan.data
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/plans")
+async def list_plans():
+    try:
+        plans = limitly.plans.list()
+        
+        return {
+            "success": True,
+            "plans": plans.data,
+            "count": plans.count
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+```
+
+## Flask Example
+
+Here's a complete example of plan management in a Flask application:
+
+```python
+from flask import Flask, request, jsonify
+from limitly import Limitly
+
+app = Flask(__name__)
+limitly = Limitly(api_key=os.getenv("LIMITLY_API_KEY"))
+
+@app.route("/api/plans", methods=["POST"])
+def create_plan():
+    try:
+        data = request.get_json()
+        
+        new_plan = limitly.plans.create({
+            "name": data["name"],
+            "description": data.get("description"),
+            "max_requests": data["max_requests"],
+            "request_period": data["request_period"],
+            "is_active": data.get("is_active", True)
+        })
+        
+        return jsonify({
+            "success": True,
+            "plan": new_plan.data
+        })
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+@app.route("/api/plans", methods=["GET"])
+def list_plans():
+    try:
+        plans = limitly.plans.list()
+        
+        return jsonify({
+            "success": True,
+            "plans": plans.data,
+            "count": plans.count
+        })
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+```
+
+## Plan Properties
+
+The SDK supports the following plan properties:
+
+- **id**: Unique identifier for the plan
+- **owner_id**: ID of the plan owner
+- **name**: Human-readable name for the plan
+- **description**: Optional description of the plan
+- **max_requests**: Maximum number of requests allowed
+- **request_period**: Period for the limit ('day', 'week', 'month', 'year')
+- **is_active**: Whether the plan is active
+- **created_at**: Timestamp when the plan was created
+- **updated_at**: Timestamp when the plan was last updated
+
+## Plan Periods
+
+The SDK supports the following request periods:
+
+- **day**: Daily limits
+- **week**: Weekly limits
+- **month**: Monthly limits
+- **year**: Yearly limits
+
+## Error Handling
+
+Handle plan management errors:
+
+```python
+from limitly import Limitly, LimitlyError
+
+limitly = Limitly(api_key=os.getenv("LIMITLY_API_KEY"))
+
+try:
+    plan = limitly.plans.create({
+        "name": "Test Plan",
+        "max_requests": 1000,
+        "request_period": "month"
+    })
+    
+    print(f"Plan created: {plan.data.id}")
+    
+except LimitlyError as e:
+    if "Invalid request period" in str(e):
+        print("Invalid request period")
+    elif "Plan name exists" in str(e):
+        print("Plan name already exists")
+    else:
+        print(f"Unexpected error: {e}")
+except Exception as e:
+    print(f"Unexpected error: {e}")
+```
+
+## CLI Management
+
+Use the CLI tool for plan management:
+
+```bash
+# Create a plan
+limitly plans create --name "Basic Plan" --description "Basic usage" --max-requests 1000 --request-period month
+
+# List plans
+limitly plans list
+
+# Get plan details
+limitly plans get --plan-id plan_123
+
+# Update a plan
+limitly plans update --plan-id plan_123 --name "Updated Plan"
+
+# Delete a plan
+limitly plans delete --plan-id plan_123
+```
+
+## Next Steps
+
+- [Users](/sdk/python/users) - Manage user accounts
+- [API Key Management](/sdk/python/api-keys) - Create API keys for plans
+- [Request Validation](/sdk/python/validation) - Validate requests against plans 

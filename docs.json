@@ -33,6 +33,30 @@
             ]
           },
           {
+            "group": "Next.js SDK",
+            "pages": [
+              "sdk/nextjs/installation",
+              "sdk/nextjs/authentication",
+              "sdk/nextjs/validation",
+              "sdk/nextjs/middleware",
+              "sdk/nextjs/api-keys",
+              "sdk/nextjs/plans",
+              "sdk/nextjs/users"
+            ]
+          },
+          {
+            "group": "Python SDK",
+            "pages": [
+              "sdk/python/installation",
+              "sdk/python/authentication",
+              "sdk/python/validation",
+              "sdk/python/middleware",
+              "sdk/python/api-keys",
+              "sdk/python/plans",
+              "sdk/python/users"
+            ]
+          },
+          {
             "group": "REST API",
             "pages": [
               "rest-api/reference",
@@ -55,13 +79,13 @@
     "links": [
       {
         "label": "Contact us",
-        "href": "mailto:hi@limitly.com"
+        "href": "mailto:hi@limitly.dev"
       }
     ],
     "primary": {
       "type": "button",
       "label": "Dashboard",
-      "href": "https://app.limitly.com"
+      "href": "https://app.limitly.dev"
     }
   },
   "contextual": {

@@ -14,7 +14,7 @@ Get all users for your account:
 ```bash
 curl -X GET \
   -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
-  https://api.limitly.com/v1/users
+  https://api.limitly.dev/v1/users
 ```
 
 ### Response
@@ -56,7 +56,7 @@ curl -X POST \
     "email": "john@example.com",
     "plan_id": "plan_123"
   }' \
-  https://api.limitly.com/v1/users
+  https://api.limitly.dev/v1/users
 ```
 
 ### Request Parameters
@@ -100,7 +100,7 @@ Retrieve a specific user by ID:
 ```bash
 curl -X GET \
   -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
-  https://api.limitly.com/v1/users/user_123
+  https://api.limitly.dev/v1/users/user_123
 ```
 
 ### Response
@@ -138,7 +138,7 @@ curl -X PUT \
       "role": "senior_developer"
     }
   }' \
-  https://api.limitly.com/v1/users/user_123
+  https://api.limitly.dev/v1/users/user_123
 ```
 
 ### Request Parameters
@@ -166,7 +166,7 @@ Delete a user account (soft delete):
 ```bash
 curl -X DELETE \
   -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
-  https://api.limitly.com/v1/users/user_123
+  https://api.limitly.dev/v1/users/user_123
 ```
 
 ### Response
@@ -186,7 +186,7 @@ Get usage statistics for a specific user:
 ```bash
 curl -X GET \
   -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
-  https://api.limitly.com/v1/users/user_123/usage
+  https://api.limitly.dev/v1/users/user_123/usage
 ```
 
 ### Response
@@ -211,7 +211,7 @@ Get all API keys for a specific user:
 ```bash
 curl -X GET \
   -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
-  https://api.limitly.com/v1/users/user_123/keys
+  https://api.limitly.dev/v1/users/user_123/keys
 ```
 
 ### Response
@@ -243,7 +243,7 @@ Get detailed request history for a user:
 ```bash
 curl -X GET \
   -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
-  https://api.limitly.com/v1/users/user_123/requests
+  https://api.limitly.dev/v1/users/user_123/requests
 ```
 
 ### Response

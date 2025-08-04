@@ -1,0 +1,285 @@
+---
+title: 'Next.js SDK Users'
+description: 'Manage user accounts using the Limitly Next.js SDK'
+---
+
+# Users
+
+The Limitly Next.js SDK provides comprehensive user management capabilities for your application.
+
+## Creating Users
+
+Create new user accounts:
+
+```typescript
+import { Limitly } from '@limitly/limitly-nextjs';
+
+const limitly = new Limitly({
+  apiKey: process.env.LIMITLY_API_KEY!
+});
+
+// Create a new user
+const newUser = await limitly.users.create({
+  email: 'user@example.com',
+  name: 'John Doe',
+  metadata: {
+    company: 'Example Corp',
+    role: 'developer'
+  }
+});
+
+console.log('New user created:', newUser.id);
+```
+
+## Listing Users
+
+Retrieve all users in your application:
+
+```typescript
+// Get all users
+const users = await limitly.users.list({
+  limit: 10,
+  offset: 0
+});
+
+console.log('Users:', users.data);
+```
+
+## Getting User Details
+
+Get detailed information about a specific user:
+
+```typescript
+// Get user details
+const user = await limitly.users.get('user_123');
+
+console.log('User details:', {
+  id: user.id,
+  email: user.email,
+  name: user.name,
+  status: user.status,
+  createdAt: user.createdAt,
+  metadata: user.metadata
+});
+```
+
+## Updating Users
+
+Update user properties:
+
+```typescript
+// Update a user
+const updatedUser = await limitly.users.update('user_123', {
+  name: 'John Smith',
+  metadata: {
+    company: 'Updated Corp',
+    role: 'senior_developer',
+    updatedAt: new Date().toISOString()
+  }
+});
+
+console.log('Updated user:', updatedUser);
+```
+
+## Deleting Users
+
+Delete user accounts when they're no longer needed:
+
+```typescript
+// Delete a user
+await limitly.users.delete('user_123');
+
+console.log('User deleted successfully');
+```
+
+## User Usage
+
+Get usage statistics for a user:
+
+```typescript
+// Get user usage
+const usage = await limitly.users.getUsage('user_123', {
+  startDate: '2024-01-01',
+  endDate: '2024-01-31'
+});
+
+console.log('User usage:', {
+  totalRequests: usage.totalRequests,
+  successfulRequests: usage.successfulRequests,
+  failedRequests: usage.failedRequests,
+  averageResponseTime: usage.averageResponseTime,
+  totalApiKeys: usage.totalApiKeys
+});
+```
+
+## User API Keys
+
+Get all API keys associated with a user:
+
+```typescript
+// Get user API keys
+const apiKeys = await limitly.users.getApiKeys('user_123', {
+  limit: 10,
+  offset: 0
+});
+
+console.log('User API keys:', apiKeys.data);
+```
+
+## API Route Example
+
+Here's a complete example of user management in a Next.js API route:
+
+```typescript
+// app/api/users/route.ts
+import { Limitly } from '@limitly/limitly-nextjs';
+
+const limitly = new Limitly({
+  apiKey: process.env.LIMITLY_API_KEY!
+});
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    
+    const newUser = await limitly.users.create({
+      email: body.email,
+      name: body.name,
+      metadata: body.metadata
+    });
+
+    return Response.json({
+      success: true,
+      user: newUser
+    });
+  } catch (error) {
+    return Response.json({
+      success: false,
+      error: error.message
+    }, { status: 500 });
+  }
+}
+
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    
+    const users = await limitly.users.list({
+      limit: parseInt(searchParams.get('limit') || '10'),
+      offset: parseInt(searchParams.get('offset') || '0')
+    });
+
+    return Response.json({
+      success: true,
+      users: users.data,
+      pagination: {
+        total: users.total,
+        limit: users.limit,
+        offset: users.offset
+      }
+    });
+  } catch (error) {
+    return Response.json({
+      success: false,
+      error: error.message
+    }, { status: 500 });
+  }
+}
+```
+
+## User Status Management
+
+Manage user account status:
+
+```typescript
+// Activate a user
+await limitly.users.update('user_123', {
+  status: 'active'
+});
+
+// Suspend a user
+await limitly.users.update('user_123', {
+  status: 'suspended'
+});
+
+// Deactivate a user
+await limitly.users.update('user_123', {
+  status: 'inactive'
+});
+```
+
+## User Search
+
+Search for users by various criteria:
+
+```typescript
+// Search users by email
+const users = await limitly.users.list({
+  email: 'user@example.com'
+});
+
+// Search users by metadata
+const users = await limitly.users.list({
+  metadata: {
+    company: 'Example Corp'
+  }
+});
+```
+
+## Error Handling
+
+Handle user management errors:
+
+```typescript
+try {
+  const user = await limitly.users.create({
+    email: 'user@example.com',
+    name: 'John Doe'
+  });
+  
+  console.log('User created:', user.id);
+} catch (error) {
+  if (error.message.includes('Email already exists')) {
+    console.error('User with this email already exists');
+  } else if (error.message.includes('Invalid email')) {
+    console.error('Invalid email format');
+  } else {
+    console.error('Unexpected error:', error.message);
+  }
+}
+```
+
+## User Types
+
+The SDK supports different types of users:
+
+- **Regular Users**: Standard user accounts
+- **Admin Users**: Administrative accounts with extended privileges
+- **Service Users**: System accounts for automated processes
+- **Trial Users**: Limited-time accounts for testing
+
+## User Metadata
+
+Store custom data with user accounts:
+
+```typescript
+const user = await limitly.users.create({
+  email: 'user@example.com',
+  name: 'John Doe',
+  metadata: {
+    company: 'Example Corp',
+    department: 'Engineering',
+    role: 'developer',
+    preferences: {
+      notifications: true,
+      theme: 'dark'
+    }
+  }
+});
+```
+
+## Next Steps
+
+- [API Key Management](/sdk/nextjs/api-keys) - Create API keys for users
+- [Plans](/sdk/nextjs/plans) - Assign users to plans
+- [Request Validation](/sdk/nextjs/validation) - Validate requests for users 

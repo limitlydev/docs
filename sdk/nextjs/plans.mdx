@@ -1,0 +1,241 @@
+---
+title: 'Next.js SDK Plans'
+description: 'Manage usage plans using the Limitly Next.js SDK'
+---
+
+# Plans
+
+The Limitly Next.js SDK provides comprehensive plan management capabilities to configure rate limits and usage policies.
+
+## Creating Plans
+
+Create new usage plans for your application:
+
+```typescript
+import { Limitly } from '@limitly/limitly-nextjs';
+
+const limitly = new Limitly({
+  apiKey: process.env.LIMITLY_API_KEY!
+});
+
+// Create a new plan
+const newPlan = await limitly.plans.create({
+  name: 'Basic Plan',
+  description: 'Basic usage plan with 1000 requests per month',
+  max_requests: 1000,
+  request_period: 'month',
+  is_active: true
+});
+
+console.log('New plan created:', newPlan.data?.id);
+```
+
+## Listing Plans
+
+Retrieve all available plans:
+
+```typescript
+// Get all plans
+const plans = await limitly.plans.list();
+
+console.log('Available plans:', plans.data);
+```
+
+## Getting Plan Details
+
+Get detailed information about a specific plan:
+
+```typescript
+// Get plan details
+const plan = await limitly.plans.get('plan_123');
+
+console.log('Plan details:', {
+  id: plan.data?.id,
+  name: plan.data?.name,
+  description: plan.data?.description,
+  max_requests: plan.data?.max_requests,
+  request_period: plan.data?.request_period,
+  is_active: plan.data?.is_active
+});
+```
+
+## Updating Plans
+
+Update plan properties:
+
+```typescript
+// Update a plan
+const updatedPlan = await limitly.plans.update('plan_123', {
+  name: 'Updated Basic Plan',
+  description: 'Updated description',
+  max_requests: 2000,
+  request_period: 'month'
+});
+
+console.log('Updated plan:', updatedPlan.data);
+```
+
+## Deleting Plans
+
+Delete plans when they're no longer needed:
+
+```typescript
+// Delete a plan
+await limitly.plans.delete('plan_123');
+
+console.log('Plan deleted successfully');
+```
+
+## Plan Usage
+
+Get usage statistics for a plan:
+
+```typescript
+// Get plan usage
+const usage = await limitly.plans.getUsage('plan_123');
+
+console.log('Plan usage:', {
+  plan_id: usage.data?.plan_id,
+  plan_name: usage.data?.plan_name,
+  max_requests: usage.data?.max_requests,
+  total_requests: usage.data?.total_requests,
+  percentage_used: usage.data?.percentage_used,
+  users_count: usage.data?.users_count,
+  api_keys_count: usage.data?.api_keys_count
+});
+```
+
+## Plan Users
+
+Get all users associated with a plan:
+
+```typescript
+// Get plan users
+const users = await limitly.plans.getUsers('plan_123');
+
+console.log('Plan users:', users.data?.users);
+```
+
+## Plan API Keys
+
+Get all API keys associated with a plan:
+
+```typescript
+// Get plan API keys
+const apiKeys = await limitly.plans.getKeys('plan_123');
+
+console.log('Plan API keys:', apiKeys.data?.api_keys);
+```
+
+## API Route Example
+
+Here's a complete example of plan management in a Next.js API route:
+
+```typescript
+// app/api/plans/route.ts
+import { Limitly } from '@limitly/limitly-nextjs';
+
+const limitly = new Limitly({
+  apiKey: process.env.LIMITLY_API_KEY!
+});
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    
+    const newPlan = await limitly.plans.create({
+      name: body.name,
+      description: body.description,
+      max_requests: body.max_requests,
+      request_period: body.request_period,
+      is_active: body.is_active
+    });
+
+    return Response.json({
+      success: true,
+      plan: newPlan.data
+    });
+  } catch (error) {
+    return Response.json({
+      success: false,
+      error: error.message
+    }, { status: 500 });
+  }
+}
+
+export async function GET(request: Request) {
+  try {
+    const plans = await limitly.plans.list();
+
+    return Response.json({
+      success: true,
+      plans: plans.data,
+      count: plans.count
+    });
+  } catch (error) {
+    return Response.json({
+      success: false,
+      error: error.message
+    }, { status: 500 });
+  }
+}
+```
+
+## Plan Properties
+
+The SDK supports the following plan properties:
+
+- **id**: Unique identifier for the plan
+- **owner_id**: ID of the plan owner
+- **name**: Human-readable name for the plan
+- **description**: Optional description of the plan
+- **max_requests**: Maximum number of requests allowed
+- **request_period**: Period for the limit ('day', 'week', 'month', 'year')
+- **is_active**: Whether the plan is active
+- **created_at**: Timestamp when the plan was created
+- **updated_at**: Timestamp when the plan was last updated
+
+## Plan Periods
+
+The SDK supports the following request periods:
+
+- **day**: Daily limits
+- **week**: Weekly limits
+- **month**: Monthly limits
+- **year**: Yearly limits
+
+## Error Handling
+
+Handle plan management errors:
+
+```typescript
+import { Limitly } from '@limitly/limitly-nextjs';
+
+const limitly = new Limitly({
+  apiKey: process.env.LIMITLY_API_KEY!
+});
+
+try {
+  const plan = await limitly.plans.create({
+    name: 'Test Plan',
+    max_requests: 1000,
+    request_period: 'month'
+  });
+  
+  console.log('Plan created:', plan.data?.id);
+} catch (error) {
+  if (error.message.includes('Invalid request period')) {
+    console.error('Invalid request period');
+  } else if (error.message.includes('Plan name exists')) {
+    console.error('Plan name already exists');
+  } else {
+    console.error('Unexpected error:', error.message);
+  }
+}
+```
+
+## Next Steps
+
+- [Users](/sdk/nextjs/users) - Manage user accounts
+- [API Key Management](/sdk/nextjs/api-keys) - Create API keys for plans
+- [Request Validation](/sdk/nextjs/validation) - Validate requests against plans 

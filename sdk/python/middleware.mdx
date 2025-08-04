@@ -1,0 +1,332 @@
+---
+title: 'Python SDK Middleware'
+description: 'Use middleware for rate limiting in Python web frameworks'
+---
+
+# Middleware
+
+The Limitly Python SDK provides middleware functionality to easily add rate limiting to your Python web applications.
+
+## FastAPI Middleware
+
+Create middleware for FastAPI applications:
+
+```python
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import JSONResponse
+from limitly import Limitly
+
+app = FastAPI()
+limitly = Limitly(api_key=os.getenv("LIMITLY_API_KEY"))
+
+@app.middleware("http")
+async def rate_limit_middleware(request: Request, call_next):
+    api_key = request.headers.get("Authorization", "").replace("Bearer ", "")
+    
+    if not api_key:
+        return JSONResponse(
+            status_code=401,
+            content={"error": "API Key required"}
+        )
+    
+    result = limitly.validation.validate(api_key, request.url.path, request.method)
+    
+    if not result.success:
+        return JSONResponse(
+            status_code=429,
+            content={
+                "error": "Rate limit exceeded",
+                "details": result.details
+            }
+        )
+    
+    response = await call_next(request)
+    return response
+
+@app.get("/api/users")
+async def get_users():
+    return {"message": "Users retrieved successfully"}
+```
+
+## Flask Middleware
+
+Create middleware for Flask applications:
+
+```python
+from flask import Flask, request, jsonify
+from limitly import Limitly
+
+app = Flask(__name__)
+limitly = Limitly(api_key=os.getenv("LIMITLY_API_KEY"))
+
+@app.before_request
+def rate_limit_middleware():
+    # Skip middleware for certain paths
+    if request.path.startswith('/health'):
+        return
+    
+    api_key = request.headers.get("Authorization", "").replace("Bearer ", "")
+    
+    if not api_key:
+        return jsonify({"error": "API Key required"}), 401
+    
+    result = limitly.validation.validate(api_key, request.path, request.method)
+    
+    if not result.success:
+        return jsonify({
+            "error": "Rate limit exceeded",
+            "details": result.details
+        }), 429
+
+@app.route("/api/users", methods=["GET"])
+def get_users():
+    return jsonify({"message": "Users retrieved successfully"})
+```
+
+## Django Middleware
+
+Create middleware for Django applications:
+
+```python
+from django.http import JsonResponse
+from django.utils.deprecation import MiddlewareMixin
+from limitly import Limitly
+
+class RateLimitMiddleware(MiddlewareMixin):
+    def __init__(self, get_response):
+        super().__init__(get_response)
+        self.limitly = Limitly(api_key=os.getenv("LIMITLY_API_KEY"))
+    
+    def process_request(self, request):
+        # Skip middleware for certain paths
+        if request.path.startswith('/admin/'):
+            return None
+        
+        api_key = request.headers.get("Authorization", "").replace("Authorization ", "")
+        
+        if not api_key:
+            return JsonResponse(
+                {"error": "API Key required"}, 
+                status=401
+            )
+        
+        result = self.limitly.validation.validate(api_key, request.path, request.method)
+        
+        if not result.success:
+            return JsonResponse({
+                "error": "Rate limit exceeded",
+                "details": result.details
+            }, status=429)
+        
+        return None
+
+# Add to MIDDLEWARE in settings.py
+MIDDLEWARE = [
+    # ... other middleware
+    'your_app.middleware.RateLimitMiddleware',
+]
+```
+
+## Custom Middleware Options
+
+Configure middleware with custom options:
+
+```python
+from functools import wraps
+from flask import request, jsonify
+
+def create_rate_limit_middleware(limitly, options=None):
+    def rate_limit_middleware(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            api_key = request.headers.get("Authorization", "").replace("Bearer ", "")
+            
+            if not api_key:
+                return jsonify({"error": "API Key required"}), 401
+            
+            result = limitly.validation.validate(
+                api_key, 
+                request.path, 
+                request.method,
+                options=options
+            )
+            
+            if not result.success:
+                return jsonify({
+                    "error": "Rate limit exceeded",
+                    "details": result.details
+                }), 429
+            
+            return f(*args, **kwargs)
+        return decorated_function
+    return rate_limit_middleware
+
+# Use custom middleware
+rate_limit = create_rate_limit_middleware(limitly, {"timeout": 5})
+
+@app.route("/api/users", methods=["GET"])
+@rate_limit
+def get_users():
+    return jsonify({"message": "Users retrieved successfully"})
+```
+
+## Error Handling
+
+Handle different types of errors in your middleware:
+
+```python
+from limitly import Limitly, LimitlyError
+
+def rate_limit_middleware(request):
+    try:
+        api_key = request.headers.get("Authorization", "").replace("Bearer ", "")
+        
+        if not api_key:
+            return {"error": "API Key required"}, 401
+        
+        result = limitly.validation.validate(api_key, request.path, request.method)
+        
+        if not result.success:
+            return {
+                "error": "Rate limit exceeded",
+                "details": result.details
+            }, 429
+        
+        return None  # Continue to next middleware/handler
+        
+    except LimitlyError as e:
+        return {"error": f"Validation error: {e}"}, 400
+    except Exception as e:
+        return {"error": f"Unexpected error: {e}"}, 500
+```
+
+## Multiple API Key Formats
+
+Handle multiple API key formats in your middleware:
+
+```python
+def extract_api_key(request):
+    """Extract API key from various sources"""
+    # Check Authorization header
+    auth_header = request.headers.get("Authorization", "")
+    if auth_header.startswith("Bearer "):
+        return auth_header[7:]
+    
+    # Check X-API-Key header
+    api_key = request.headers.get("X-API-Key")
+    if api_key:
+        return api_key
+    
+    # Check query parameter
+    api_key = request.args.get("api_key")
+    if api_key:
+        return api_key
+    
+    return None
+
+def rate_limit_middleware(request):
+    api_key = extract_api_key(request)
+    
+    if not api_key:
+        return {"error": "API Key required"}, 401
+    
+    result = limitly.validation.validate(api_key, request.path, request.method)
+    
+    if not result.success:
+        return {
+            "error": "Rate limit exceeded",
+            "details": result.details
+        }, 429
+    
+    return None
+```
+
+## Testing Middleware
+
+Test your middleware with different scenarios:
+
+```python
+import os
+from limitly import Limitly
+
+def test_middleware():
+    limitly = Limitly(api_key=os.getenv("LIMITLY_API_KEY"))
+    
+    # Mock request object
+    class MockRequest:
+        def __init__(self, headers, path, method):
+            self.headers = headers
+            self.path = path
+            self.method = method
+    
+    # Test with valid API key
+    request = MockRequest(
+        headers={"Authorization": "Bearer valid_api_key"},
+        path="/api/test",
+        method="GET"
+    )
+    
+    result = rate_limit_middleware(request)
+    print(f"Valid key result: {result}")
+    
+    # Test with invalid API key
+    request = MockRequest(
+        headers={"Authorization": "Bearer invalid_api_key"},
+        path="/api/test",
+        method="GET"
+    )
+    
+    result = rate_limit_middleware(request)
+    print(f"Invalid key result: {result}")
+
+if __name__ == "__main__":
+    test_middleware()
+```
+
+## CLI Testing
+
+Test middleware using the CLI tool:
+
+```bash
+# Test middleware with different scenarios
+limitly validate --api-key valid_key --path /api/users --method GET
+limitly validate --api-key invalid_key --path /api/users --method GET
+limitly validate --api-key limited_key --path /api/users --method GET
+```
+
+## Performance Considerations
+
+Optimize your middleware for performance:
+
+```python
+import time
+from functools import lru_cache
+
+# Cache API key validation results
+@lru_cache(maxsize=1000)
+def cached_validate(api_key, path, method):
+    return limitly.validation.validate(api_key, path, method)
+
+def optimized_middleware(request):
+    api_key = request.headers.get("Authorization", "").replace("Bearer ", "")
+    
+    if not api_key:
+        return {"error": "API Key required"}, 401
+    
+    # Use cached validation for better performance
+    result = cached_validate(api_key, request.path, request.method)
+    
+    if not result.success:
+        return {
+            "error": "Rate limit exceeded",
+            "details": result.details
+        }, 429
+    
+    return None
+```
+
+## Next Steps
+
+- [API Key Management](/sdk/python/api-keys) - Manage API keys for your users
+- [Plans](/sdk/python/plans) - Configure usage plans
+- [Users](/sdk/python/users) - Manage user accounts 

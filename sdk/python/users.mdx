@@ -1,0 +1,376 @@
+---
+title: 'Python SDK Users'
+description: 'Manage user accounts using the Limitly Python SDK'
+---
+
+# Users
+
+The Limitly Python SDK provides comprehensive user management capabilities for your application.
+
+## Creating Users
+
+Create new user accounts:
+
+```python
+from limitly import Limitly
+
+limitly = Limitly(api_key="your_limitly_api_key")
+
+# Create a new user
+new_user = limitly.users.create({
+    "email": "user@example.com",
+    "name": "John Doe",
+    "metadata": {
+        "company": "Example Corp",
+        "role": "developer"
+    }
+})
+
+print(f"New user created: {new_user.id}")
+```
+
+## Listing Users
+
+Retrieve all users in your application:
+
+```python
+# Get all users
+users = limitly.users.list({
+    "limit": 10,
+    "offset": 0
+})
+
+print(f"Users: {users.data}")
+```
+
+## Getting User Details
+
+Get detailed information about a specific user:
+
+```python
+# Get user details
+user = limitly.users.get("user_123")
+
+print("User details:", {
+    "id": user.id,
+    "email": user.email,
+    "name": user.name,
+    "status": user.status,
+    "created_at": user.created_at,
+    "metadata": user.metadata
+})
+```
+
+## Updating Users
+
+Update user properties:
+
+```python
+# Update a user
+updated_user = limitly.users.update("user_123", {
+    "name": "John Smith",
+    "metadata": {
+        "company": "Updated Corp",
+        "role": "senior_developer",
+        "updated_at": "2024-01-01T00:00:00Z"
+    }
+})
+
+print(f"Updated user: {updated_user}")
+```
+
+## Deleting Users
+
+Delete user accounts when they're no longer needed:
+
+```python
+# Delete a user
+limitly.users.delete("user_123")
+
+print("User deleted successfully")
+```
+
+## User Usage
+
+Get usage statistics for a user:
+
+```python
+# Get user usage
+usage = limitly.users.get_usage("user_123", {
+    "start_date": "2024-01-01",
+    "end_date": "2024-01-31"
+})
+
+print("User usage:", {
+    "total_requests": usage.total_requests,
+    "successful_requests": usage.successful_requests,
+    "failed_requests": usage.failed_requests,
+    "average_response_time": usage.average_response_time,
+    "total_api_keys": usage.total_api_keys
+})
+```
+
+## User API Keys
+
+Get all API keys associated with a user:
+
+```python
+# Get user API keys
+api_keys = limitly.users.get_api_keys("user_123", {
+    "limit": 10,
+    "offset": 0
+})
+
+print(f"User API keys: {api_keys.data}")
+```
+
+## FastAPI Example
+
+Here's a complete example of user management in a FastAPI application:
+
+```python
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from limitly import Limitly
+
+app = FastAPI()
+limitly = Limitly(api_key=os.getenv("LIMITLY_API_KEY"))
+
+class CreateUserRequest(BaseModel):
+    email: str
+    name: str
+    metadata: dict = {}
+
+@app.post("/api/users")
+async def create_user(request: CreateUserRequest):
+    try:
+        new_user = limitly.users.create({
+            "email": request.email,
+            "name": request.name,
+            "metadata": request.metadata
+        })
+        
+        return {
+            "success": True,
+            "user": new_user
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/users")
+async def list_users(limit: int = 10, offset: int = 0):
+    try:
+        users = limitly.users.list({
+            "limit": limit,
+            "offset": offset
+        })
+        
+        return {
+            "success": True,
+            "users": users.data,
+            "pagination": {
+                "total": users.total,
+                "limit": users.limit,
+                "offset": users.offset
+            }
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+```
+
+## Flask Example
+
+Here's a complete example of user management in a Flask application:
+
+```python
+from flask import Flask, request, jsonify
+from limitly import Limitly
+
+app = Flask(__name__)
+limitly = Limitly(api_key=os.getenv("LIMITLY_API_KEY"))
+
+@app.route("/api/users", methods=["POST"])
+def create_user():
+    try:
+        data = request.get_json()
+        
+        new_user = limitly.users.create({
+            "email": data["email"],
+            "name": data["name"],
+            "metadata": data.get("metadata", {})
+        })
+        
+        return jsonify({
+            "success": True,
+            "user": new_user
+        })
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+@app.route("/api/users", methods=["GET"])
+def list_users():
+    try:
+        limit = int(request.args.get("limit", 10))
+        offset = int(request.args.get("offset", 0))
+        
+        users = limitly.users.list({
+            "limit": limit,
+            "offset": offset
+        })
+        
+        return jsonify({
+            "success": True,
+            "users": users.data,
+            "pagination": {
+                "total": users.total,
+                "limit": users.limit,
+                "offset": users.offset
+            }
+        })
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+```
+
+## User Status Management
+
+Manage user account status:
+
+```python
+# Activate a user
+limitly.users.update("user_123", {
+    "status": "active"
+})
+
+# Suspend a user
+limitly.users.update("user_123", {
+    "status": "suspended"
+})
+
+# Deactivate a user
+limitly.users.update("user_123", {
+    "status": "inactive"
+})
+```
+
+## User Search
+
+Search for users by various criteria:
+
+```python
+# Search users by email
+users = limitly.users.list({
+    "email": "user@example.com"
+})
+
+# Search users by metadata
+users = limitly.users.list({
+    "metadata": {
+        "company": "Example Corp"
+    }
+})
+```
+
+## Error Handling
+
+Handle user management errors:
+
+```python
+from limitly import Limitly, LimitlyError
+
+limitly = Limitly(api_key=os.getenv("LIMITLY_API_KEY"))
+
+try:
+    user = limitly.users.create({
+        "email": "user@example.com",
+        "name": "John Doe"
+    })
+    
+    print(f"User created: {user.id}")
+    
+except LimitlyError as e:
+    if "Email already exists" in str(e):
+        print("User with this email already exists")
+    elif "Invalid email" in str(e):
+        print("Invalid email format")
+    else:
+        print(f"Unexpected error: {e}")
+except Exception as e:
+    print(f"Unexpected error: {e}")
+```
+
+## User Types
+
+The SDK supports different types of users:
+
+- **Regular Users**: Standard user accounts
+- **Admin Users**: Administrative accounts with extended privileges
+- **Service Users**: System accounts for automated processes
+- **Trial Users**: Limited-time accounts for testing
+
+## User Metadata
+
+Store custom data with user accounts:
+
+```python
+user = limitly.users.create({
+    "email": "user@example.com",
+    "name": "John Doe",
+    "metadata": {
+        "company": "Example Corp",
+        "department": "Engineering",
+        "role": "developer",
+        "preferences": {
+            "notifications": True,
+            "theme": "dark"
+        }
+    }
+})
+```
+
+## CLI Management
+
+Use the CLI tool for user management:
+
+```bash
+# Create a user
+limitly users create --email user@example.com --name "John Doe"
+
+# List users
+limitly users list
+
+# Get user details
+limitly users get --user-id user_123
+
+# Update a user
+limitly users update --user-id user_123 --name "John Smith"
+
+# Delete a user
+limitly users delete --user-id user_123
+```
+
+## User Analytics
+
+Get analytics for user behavior:
+
+```python
+# Get user usage analytics
+analytics = limitly.users.get_analytics("user_123", {
+    "start_date": "2024-01-01",
+    "end_date": "2024-01-31",
+    "metrics": ["requests", "errors", "response_time"]
+})
+
+print("User analytics:", analytics)
+```
+
+## Next Steps
+
+- [API Key Management](/sdk/python/api-keys) - Create API keys for users
+- [Plans](/sdk/python/plans) - Assign users to plans
+- [Request Validation](/sdk/python/validation) - Validate requests for users 

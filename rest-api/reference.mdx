@@ -15,13 +15,13 @@ All API requests require authentication using your API key:
 
 ```bash
 curl -H "Authorization: Bearer YOUR_API_KEY" \
-  https://api.limitly.com/v1/users
+  https://api.limitly.dev/v1/users
 ```
 
 ### Base URLs
 
-- **Production**: `https://api.limitly.com`
-- **Sandbox**: `https://sandbox-api.limitly.com`
+- **Production**: `https://api.limitly.dev`
+- **Sandbox**: `https://sandbox-api.limitly.dev`
 
 ### Rate Limits
 
@@ -254,7 +254,7 @@ curl -X POST \
     "email": "john@example.com",
     "plan_id": "plan_1234567890abcdef"
   }' \
-  https://api.limitly.com/v1/users
+  https://api.limitly.dev/v1/users
 ```
 
 ### Validating a Request
@@ -269,7 +269,7 @@ curl -X POST \
     "method": "GET",
     "ip_address": "192.168.1.1"
   }' \
-  https://api.limitly.com/v1/validate
+  https://api.limitly.dev/v1/validate
 ```
 
 ## Best Practices
@@ -285,6 +285,6 @@ curl -X POST \
 ## Getting Help
 
 - **Documentation**: Browse the complete API documentation
-- **Support**: Email us at hi@limitly.com
+- **Support**: Email us at hi@limitly.dev
 - **GitHub**: Report issues on our GitHub repository
 - **Community**: Join our Discord server

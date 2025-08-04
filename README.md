@@ -50,7 +50,7 @@ Todas las requests requieren autenticación mediante Bearer token:
 
 ```bash
 curl -H "Authorization: Bearer YOUR_API_KEY" \
-  https://api.limitly.com/v1/users
+  https://api.limitly.dev/v1/users
 ```
 
 ## Herramientas Compatibles
@@ -173,6 +173,6 @@ La documentación está configurada para desplegarse en Mintlify:
 
 ## Soporte
 
-- **Email**: hi@limitly.com
+- **Email**: hi@limitly.dev
 - **GitHub**: Reporta issues en el repositorio
 - **Documentación**: Consulta la documentación completa
