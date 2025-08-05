@@ -12,7 +12,7 @@ Get all users for your account:
 ```bash
 curl -X GET \
   -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
-  https://api.limitly.dev/v1/users
+  https://api.limitly.dev/functions/v1//users
 ```
 
 ### Response
@@ -45,7 +45,7 @@ curl -X POST \
     "name": "John Doe",
     "email": "john@example.com"
   }' \
-  https://api.limitly.dev/v1/users
+  https://api.limitly.dev/functions/v1//users
 ```
 
 ### Request Parameters
@@ -80,7 +80,7 @@ Retrieve a specific user by ID:
 ```bash
 curl -X GET \
   -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
-  https://api.limitly.dev/v1/users/123
+  https://api.limitly.dev/functions/v1//users/123
 ```
 
 ### Response
@@ -110,7 +110,7 @@ curl -X PUT \
     "name": "John Smith",
     "email": "john.smith@example.com"
   }' \
-  https://api.limitly.dev/v1/users/123
+  https://api.limitly.dev/functions/v1//users/123
 ```
 
 ### Request Parameters
@@ -134,7 +134,7 @@ Delete a user account:
 ```bash
 curl -X DELETE \
   -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
-  https://api.limitly.dev/v1/users/123
+  https://api.limitly.dev/functions/v1//users/123
 ```
 
 ### Response
@@ -154,7 +154,7 @@ Get usage statistics for a specific user:
 ```bash
 curl -X GET \
   -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
-  https://api.limitly.dev/v1/users/123/usage
+  https://api.limitly.dev/functions/v1//users/123/usage
 ```
 
 ### Response
@@ -179,7 +179,7 @@ Get all API keys associated with a user:
 ```bash
 curl -X GET \
   -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
-  https://api.limitly.dev/v1/users/123/keys
+  https://api.limitly.dev/functions/v1//users/123/keys
 ```
 
 ### Response
@@ -206,7 +206,7 @@ Get detailed request history for a user:
 ```bash
 curl -X GET \
   -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
-  https://api.limitly.dev/v1/users/123/requests
+  https://api.limitly.dev/functions/v1//users/123/requests
 ```
 
 ### Response
@@ -240,7 +240,7 @@ curl -X PUT \
   -d '{
     "is_disabled": false
   }' \
-  https://api.limitly.dev/v1/users/123
+  https://api.limitly.dev/functions/v1//users/123
 
 # Suspend a user
 curl -X PUT \
@@ -249,7 +249,7 @@ curl -X PUT \
   -d '{
     "is_disabled": true
   }' \
-  https://api.limitly.dev/v1/users/123
+  https://api.limitly.dev/functions/v1//users/123
 ```
 
 ## Search Users
@@ -260,7 +260,7 @@ Search for users by various criteria:
 # Search by email
 curl -X GET \
   -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
-  "https://api.limitly.dev/v1/users?email=john@example.com"
+  "https://api.limitly.dev/functions/v1//users?email=john@example.com"
 ```
 
 ## Error Responses
@@ -313,7 +313,7 @@ List endpoints support pagination with the following query parameters:
 ```bash
 curl -X GET \
   -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
-  "https://api.limitly.dev/v1/users?page=2&limit=20"
+  "https://api.limitly.dev/functions/v1//users?page=2&limit=20"
 ```
 
 ## User Properties

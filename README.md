@@ -50,7 +50,7 @@ Todas las requests requieren autenticación mediante Bearer token:
 
 ```bash
 curl -H "Authorization: Bearer YOUR_API_KEY" \
-  https://api.limitly.dev/v1/users
+  https://api.limitly.dev/functions/v1//users
 ```
 
 ## Herramientas Compatibles

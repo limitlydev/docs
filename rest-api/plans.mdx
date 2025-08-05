@@ -12,7 +12,7 @@ Get all plans for your account:
 ```bash
 curl -X GET \
   -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
-  https://api.limitly.dev/v1/plans
+  https://api.limitly.dev/functions/v1//plans
 ```
 
 ### Response
@@ -50,7 +50,7 @@ curl -X POST \
     "request_period": "month",
     "is_active": true
   }' \
-  https://api.limitly.dev/v1/plans
+  https://api.limitly.dev/functions/v1//plans
 ```
 
 ### Request Parameters
@@ -99,7 +99,7 @@ Retrieve a specific plan by ID:
 ```bash
 curl -X GET \
   -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
-  https://api.limitly.dev/v1/plans/plan_123
+  https://api.limitly.dev/functions/v1//plans/plan_123
 ```
 
 ### Response
@@ -132,7 +132,7 @@ curl -X PUT \
     "max_requests": 15000,
     "is_active": true
   }' \
-  https://api.limitly.dev/v1/plans/plan_123
+  https://api.limitly.dev/functions/v1//plans/plan_123
 ```
 
 ### Request Parameters
@@ -164,7 +164,7 @@ Delete a plan:
 ```bash
 curl -X DELETE \
   -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
-  https://api.limitly.dev/v1/plans/plan_123
+  https://api.limitly.dev/functions/v1//plans/plan_123
 ```
 
 ### Response
@@ -184,7 +184,7 @@ Get usage statistics for a specific plan:
 ```bash
 curl -X GET \
   -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
-  https://api.limitly.dev/v1/plans/plan_123/usage
+  https://api.limitly.dev/functions/v1//plans/plan_123/usage
 ```
 
 ### Response
@@ -207,7 +207,7 @@ Get all users on a specific plan:
 ```bash
 curl -X GET \
   -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
-  https://api.limitly.dev/v1/plans/plan_123/users
+  https://api.limitly.dev/functions/v1//plans/plan_123/users
 ```
 
 ### Response
@@ -233,7 +233,7 @@ Get all API keys associated with a plan:
 ```bash
 curl -X GET \
   -H "Authorization: Bearer lk_1234567890abcdef1234567890abcdef" \
-  https://api.limitly.dev/v1/plans/plan_123/keys
+  https://api.limitly.dev/functions/v1//plans/plan_123/keys
 ```
 
 ### Response
